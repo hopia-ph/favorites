@@ -386,10 +386,23 @@
       let map = null;
       let marker = null;
 
-      // Smart Auto-Refresh: Checks database every 15 seconds silently
+      // SPEED UPGRADE: Instant Loading via Local Storage Cache
       window.addEventListener('load', function() {
-        fetchMenuData(); // Load immediately on open
-        setInterval(fetchMenuData, 15000); // Check again every 15 seconds
+        // 1. Instantly show the cached menu if they have visited before
+        const cachedMenu = localStorage.getItem('hopiaMenuCache');
+        if (cachedMenu) {
+          try {
+            const parsedCache = JSON.parse(cachedMenu);
+            const visibleMenu = parsedCache.filter(item => String(item.visible).toLowerCase() !== 'false');
+            renderMenu(visibleMenu);
+          } catch(e) {} // If cache is broken, ignore it and wait for network
+        }
+
+        // 2. Fetch fresh data from Google quietly in the background
+        fetchMenuData(); 
+        
+        // 3. Continue checking every 15 seconds for admin toggles
+        setInterval(fetchMenuData, 15000); 
       });
 
       function fetchMenuData() {
@@ -401,6 +414,9 @@
         .then(res => res.json())
         .then(result => {
           if(result.success) {
+            // Save the fresh data to the customer's phone for their next visit!
+            localStorage.setItem('hopiaMenuCache', JSON.stringify(result.data));
+            
             const visibleMenu = result.data.filter(item => String(item.visible).toLowerCase() !== 'false');
             renderMenu(visibleMenu);
           } else if (menuData.length === 0) {
@@ -409,7 +425,7 @@
         })
         .catch(error => {
           if (menuData.length === 0) {
-            document.getElementById('menuGrid').innerHTML = '<div class="loader" style="color:red;">Network Error. Please refresh the page.</div>';
+            document.getElementById('menuGrid').innerHTML = '<div class="loader" style="color:red;">Network Error. Please check your connection.</div>';
           }
         });
       }
