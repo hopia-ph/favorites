@@ -396,8 +396,8 @@
         .then(res => res.json())
         .then(result => {
           if(result.success) {
-            // FILTER ADDED: Only display items that are not hidden by Admin
-            const visibleMenu = result.data.filter(item => item.visible !== false);
+            // BULLETPROOF FILTER: Handles both boolean false and string "false" from Google Sheets
+            const visibleMenu = result.data.filter(item => String(item.visible).toLowerCase() !== 'false');
             renderMenu(visibleMenu);
           } else {
             document.getElementById('menuGrid').innerHTML = '<div class="loader" style="color:red;">Database Error: ' + result.error + '</div>';
