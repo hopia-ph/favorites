@@ -754,7 +754,7 @@
           </td>
           <td class="col-items order-summary-cell">${order.items}${totalPcsText}</td>
           <td class="col-total"><strong style="font-size:0.95rem;">${order.total}</strong><br><span style="font-size:0.8rem; color:#555;">💳 ${order.paymentMethod}</span>${proofLink}</td>
-          <td class="col-status-admin"><select class="${selectClass}" onchange="changeStatus(this, ${order.rowNumber})">${statusOptions}</select><div class="updated-by-cell">👤 Admin</div></td>
+          <td class="col-status-admin"><select class="${selectClass}" onchange="changeStatus(this, ${order.rowNumber})">${statusOptions}</select><div class="updated-by-cell">${updatedByDisplay}</div></td>
         `;
         tbody.appendChild(tr);
       });
