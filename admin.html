@@ -974,6 +974,30 @@
       const toast = document.getElementById("toast"); toast.innerText = message; toast.className = "show";
       setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
     }
+
+    // ==========================================
+    // AUTO-REFRESH ORDERS EVERY 30 SECONDS
+    // ==========================================
+    let autoRefreshTimer;
+
+    function startAutoRefresh() {
+      // Clear any existing timer just in case
+      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+      
+      // Refresh the orders table every 30 seconds
+      autoRefreshTimer = setInterval(() => {
+        // Only refresh if the user is logged in AND viewing the Orders tab
+        const isOrdersTabActive = document.getElementById('viewOrders').style.display !== 'none';
+        const isLoggedIn = document.getElementById('loginOverlay') && document.getElementById('loginOverlay').style.display === 'none';
+        
+        if (isLoggedIn && isOrdersTabActive) {
+          loadOrders();
+        }
+      }, 30000); 
+    }
+
+    // Start the timer when the page finishes loading
+    window.addEventListener('load', startAutoRefresh);
   </script>
 </body>
 </html>
