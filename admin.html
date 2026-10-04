@@ -125,6 +125,7 @@
     <div class="login-box">
       <h1>Hopia & etc.</h1>
       <p style="color: var(--text-muted); margin-bottom: 20px;">Admin Dashboard</p>
+      <input type="text" id="usernameInput" class="pin-input" placeholder="Username" autocomplete="off" style="letter-spacing: normal; margin-bottom: 10px;">
       <input type="password" id="pinInput" class="pin-input" placeholder="••••" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off" onkeydown="if(event.key==='Enter') verifyPin();" oninput="if(this.value.length>=4) verifyPin();">
       <button type="button" class="btn btn-accent" onclick="verifyPin()">Login</button>
       <div id="loginError" style="color: #d32f2f; margin-top: 10px; font-weight: 600; display: none;">Incorrect PIN</div>
@@ -339,20 +340,21 @@
     let currentStartDate = new Date();
     let currentEndDate = new Date();
 
-    let activeAdminPin = ''; // Stores the specific admin's PIN
+    let activeUsername = ''; 
+    let activeAdminPin = ''; 
 
-    // Format the email so it looks clean on the dashboard (e.g., "jerryquirona19")
+    // Format the email so it looks clean on the dashboard
     function formatAdminUser(email) {
       if (!email || email === '-') return '';
       return String(email).split('@')[0];
     }
 
-    // --- API BRIDGE (Replaces google.script.run) ---
+    // --- API BRIDGE ---
     async function apiCall(action, payload = null) {
       const response = await fetch(GAS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: action, pin: activeAdminPin, payload: payload })
+        body: JSON.stringify({ action: action, username: activeUsername, pin: activeAdminPin, payload: payload })
       });
       
       const data = await response.json();
@@ -361,17 +363,27 @@
     }
 
     function verifyPin() {
-      const input = document.getElementById('pinInput');
+      const userIn = document.getElementById('usernameInput');
+      const pinIn = document.getElementById('pinInput');
       const err = document.getElementById('loginError');
-      const val = input ? String(input.value).trim() : '';
+      
+      const uVal = userIn ? userIn.value.toLowerCase().trim() : '';
+      const pVal = pinIn ? String(pinIn.value).trim() : '';
 
-      if (input) input.blur();
+      if (userIn) userIn.blur();
+      if (pinIn) pinIn.blur();
 
-      // The 4 assigned admin PINs
-      const validPins = ['1919', '2121', '1010', '2727'];
+      const adminUsers = {
+        "jeromequirona": "2121",
+        "jerryquirona19": "1919",
+        "johnpaulquirona10": "1010",
+        "quironajemylene": "2727"
+      };
 
-      if (validPins.includes(val)) {
-        activeAdminPin = val; // Store the exact admin who logged in!
+      // Check if username exists AND matches the assigned PIN
+      if (adminUsers[uVal] && adminUsers[uVal] === pVal) {
+        activeUsername = uVal;
+        activeAdminPin = pVal;
         
         if (err) err.style.display = 'none';
         const overlay = document.getElementById('loginOverlay');
@@ -383,7 +395,10 @@
         loadMenuData();
         loadOrders();
       } else {
-        if (err) err.style.display = 'block';
+        if (err) {
+          err.innerText = "Invalid Username or PIN";
+          err.style.display = 'block';
+        }
       }
     }
 
