@@ -265,7 +265,7 @@
         <form id="trackerForm" onsubmit="checkStatus(event)">
           <div class="input-group">
             <label>Order ID</label>
-            <input type="text" id="searchOrderId" required placeholder="e.g. ORD-12345" style="text-transform: uppercase;">
+            <input type="text" id="searchOrderId" required placeholder="e.g. 261004-1" style="text-transform: uppercase;">
           </div>
           <button type="submit" class="submit-btn" id="trackBtn">Check Status</button>
         </form>
@@ -369,6 +369,15 @@
       </div>
     </div>
 
+    <!-- Pop-Up Item Description Modal (ADDED) -->
+    <div id="infoModal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.6); align-items:center; justify-content:center; padding: 20px; box-sizing: border-box;">
+      <div style="background:var(--card-bg); padding:30px; border-radius:16px; max-width:400px; width:100%; text-align:center; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <button onclick="document.getElementById('infoModal').style.display='none'" style="position:absolute; top:15px; right:15px; background:var(--bg-color); border:none; font-size:1.5rem; cursor:pointer; color:var(--text-muted); border-radius:50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">&times;</button>
+        <h2 id="infoTitle" style="color:var(--text-main); margin-top:10px; font-family:'Playfair Display', serif;"></h2>
+        <p id="infoDesc" style="color:var(--text-muted); line-height:1.6; font-size:0.95rem; margin-bottom: 10px;"></p>
+      </div>
+    </div>
+
     <script>
       const API_URL = "https://script.google.com/macros/s/AKfycbxteaBSrcbGcNiAJXf5heS2mKgNim20CU7yzq3wtagocT-oPmBVgxuqfwOT3y536Bu2/exec";
       let menuData = [];
@@ -387,7 +396,9 @@
         .then(res => res.json())
         .then(result => {
           if(result.success) {
-            renderMenu(result.data);
+            // FILTER ADDED: Only display items that are not hidden by Admin
+            const visibleMenu = result.data.filter(item => item.visible !== false);
+            renderMenu(visibleMenu);
           } else {
             document.getElementById('menuGrid').innerHTML = '<div class="loader" style="color:red;">Database Error: ' + result.error + '</div>';
           }
@@ -412,8 +423,13 @@
           card.className = 'product-card';
           const imgSrc = item.imageUrl ? item.imageUrl : 'https://via.placeholder.com/300x200?text=Fresh+Pastry';
           
+          // Escape strings for the onclick function
+          const safeName = item.name.replace(/'/g, "\\'");
+          const safeDesc = (item.description || "No description available.").replace(/'/g, "\\'");
+          
+          // ADDED onclick to the product image
           card.innerHTML = `
-            <img src="${imgSrc}" class="product-image" alt="${item.name}">
+            <img src="${imgSrc}" class="product-image" alt="${item.name}" onclick="showInfo('${safeName}', '${safeDesc}')" style="cursor: pointer;" title="Click for details">
             <div class="product-info">
               <h3 class="product-name">${item.name}</h3>
               <div class="product-price">₱${item.price}</div>
@@ -426,6 +442,12 @@
           `;
           grid.appendChild(card);
         });
+      }
+
+      function showInfo(title, desc) {
+         document.getElementById('infoTitle').innerText = title;
+         document.getElementById('infoDesc').innerText = desc;
+         document.getElementById('infoModal').style.display = 'flex';
       }
 
       function updateItem(index, change) {
