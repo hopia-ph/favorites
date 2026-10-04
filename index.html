@@ -234,7 +234,11 @@
             <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 15px;">
               <div style="flex: 1;">
                 <label style="color: var(--accent); margin-bottom: 8px;">GCash Payment Details</label>
-                <p style="margin: 0 0 10px; font-size: 0.9rem;">Please send <strong>₱<span id="gcashTotalDisplay">0</span></strong> to:<br><strong>0926 1199 915 (JE**Y Q.)</strong></p>
+                <p style="margin: 0 0 10px; font-size: 0.9rem;">
+                  Please send <strong>₱<span id="gcashTotalDisplay">0</span></strong> to:<br>
+                  <strong onclick="copyGCashNumber()" id="gcashNumDisplay" style="cursor: pointer; color: var(--accent); display: inline-block; padding: 4px 8px; background: #FBE9E7; border-radius: 6px; border: 1px solid #FFCCBC; margin-top: 4px;" title="Click to copy">0926 1199 915 📋</strong> 
+                  <span style="font-weight: 600;">(JE**Y Q.)</span>
+                </p>
                 <label style="font-size: 0.85rem;">Upload Screenshot / Proof of Payment</label>
                 <input type="file" id="proofFile" accept="image/*" onchange="compressProof(this)" style="padding: 10px 0; background: transparent; border: none; width: 100%;">
                 <input type="hidden" id="proofData">
@@ -916,6 +920,48 @@
           btn.disabled = false;
           btn.innerText = "Check Status";
         });
+      }
+
+      function copyGCashNumber() {
+        const gcashNumber = "09261199915"; // Formatted without spaces for easy app pasting
+        const display = document.getElementById("gcashNumDisplay");
+        const originalHTML = "0926 1199 915 📋";
+
+        // Modern clipboard copy
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(gcashNumber).then(showCopied);
+        } else {
+            // Fallback for older browsers
+            let textArea = document.createElement("textarea");
+            textArea.value = gcashNumber;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showCopied();
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showCopied() {
+            display.innerHTML = "0926 1199 915 ✅ Copied!";
+            display.style.background = "#E8F5E9";
+            display.style.borderColor = "#A5D6A7";
+            display.style.color = "#2E7D32";
+            
+            setTimeout(() => {
+                display.innerHTML = originalHTML;
+                display.style.background = "#FBE9E7";
+                display.style.borderColor = "#FFCCBC";
+                display.style.color = "var(--accent)";
+            }, 2000);
+        }
       }
     </script>
   </body>
