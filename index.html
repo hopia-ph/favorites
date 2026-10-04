@@ -386,8 +386,13 @@
       let map = null;
       let marker = null;
 
-      // API Bridge fetch replacement for google.script.run
+      // Smart Auto-Refresh: Checks database every 15 seconds silently
       window.addEventListener('load', function() {
+        fetchMenuData(); // Load immediately on open
+        setInterval(fetchMenuData, 15000); // Check again every 15 seconds
+      });
+
+      function fetchMenuData() {
         fetch(API_URL, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -396,38 +401,52 @@
         .then(res => res.json())
         .then(result => {
           if(result.success) {
-            // BULLETPROOF FILTER: Handles both boolean false and string "false" from Google Sheets
             const visibleMenu = result.data.filter(item => String(item.visible).toLowerCase() !== 'false');
             renderMenu(visibleMenu);
-          } else {
+          } else if (menuData.length === 0) {
             document.getElementById('menuGrid').innerHTML = '<div class="loader" style="color:red;">Database Error: ' + result.error + '</div>';
           }
         })
         .catch(error => {
-          document.getElementById('menuGrid').innerHTML = '<div class="loader" style="color:red;">Network Error. Please refresh the page.</div>';
+          if (menuData.length === 0) {
+            document.getElementById('menuGrid').innerHTML = '<div class="loader" style="color:red;">Network Error. Please refresh the page.</div>';
+          }
         });
-      });
+      }
 
-      function renderMenu(items) {
-        menuData = items;
+      function renderMenu(newItems) {
+        // 1. SAVE THE CUSTOMER'S CURRENT CART
+        const savedQuantities = {};
+        menuData.forEach((item, idx) => {
+          const qtyEl = document.getElementById(`qty-${idx}`);
+          if (qtyEl && parseInt(qtyEl.innerText) > 0) {
+            savedQuantities[item.name] = parseInt(qtyEl.innerText);
+          }
+        });
+
+        // 2. UPDATE THE MENU DATA
+        menuData = newItems;
         const grid = document.getElementById('menuGrid');
         grid.innerHTML = ''; 
 
-        if (!items || items.length === 0) {
+        if (!newItems || newItems.length === 0) {
           grid.innerHTML = '<div class="loader">Menu is currently empty.</div>';
+          calculateCart();
           return;
         }
 
-        items.forEach((item, idx) => {
+        // 3. REBUILD THE MENU (And restore their cart quantities)
+        newItems.forEach((item, idx) => {
           const card = document.createElement('div');
           card.className = 'product-card';
           const imgSrc = item.imageUrl ? item.imageUrl : 'https://via.placeholder.com/300x200?text=Fresh+Pastry';
           
-          // Escape strings for the onclick function
           const safeName = item.name.replace(/'/g, "\\'");
           const safeDesc = (item.description || "No description available.").replace(/'/g, "\\'");
           
-          // ADDED onclick to the product image
+          // Check if they had this item in their cart before the refresh
+          const restoredQty = savedQuantities[item.name] || 0;
+          
           card.innerHTML = `
             <img src="${imgSrc}" class="product-image" alt="${item.name}" onclick="showInfo('${safeName}', '${safeDesc}')" style="cursor: pointer;" title="Click for details">
             <div class="product-info">
@@ -435,13 +454,16 @@
               <div class="product-price">₱${item.price}</div>
               <div class="stepper">
                 <button type="button" class="step-btn" onclick="updateItem(${idx}, -1)">-</button>
-                <div class="step-value" id="qty-${idx}">0</div>
+                <div class="step-value" id="qty-${idx}">${restoredQty}</div>
                 <button type="button" class="step-btn" onclick="updateItem(${idx}, 1)">+</button>
               </div>
             </div>
           `;
           grid.appendChild(card);
         });
+
+        // 4. RECALCULATE CART TOTALS
+        calculateCart();
       }
 
       function showInfo(title, desc) {
