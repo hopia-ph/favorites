@@ -341,6 +341,12 @@
 
     let activeAdminPin = ''; // Stores the specific admin's PIN
 
+    // Format the email so it looks clean on the dashboard (e.g., "jerryquirona19")
+    function formatAdminUser(email) {
+      if (!email || email === '-') return '';
+      return String(email).split('@')[0];
+    }
+
     // --- API BRIDGE (Replaces google.script.run) ---
     async function apiCall(action, payload = null) {
       const response = await fetch(GAS_URL, {
