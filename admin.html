@@ -803,6 +803,12 @@
         .then(res => {
           showToast(res.message);
           selectElement.disabled = false;
+          
+          // INSTANT UI UPDATE: Instantly swaps the name on the screen to the active admin!
+          const updatedByCell = tr.querySelector('.updated-by-cell');
+          if (updatedByCell && res.updatedBy) {
+            updatedByCell.innerHTML = `<div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-top:4px;" title="${res.updatedBy}">👤 ${formatAdminUser(res.updatedBy)}</div>`;
+          }
         })
         .catch(err => {
           showToast("Failed: " + err.message);
