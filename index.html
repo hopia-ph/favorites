@@ -369,6 +369,27 @@
       </div>
     </div>
 
+    <!-- Order Success Modal -->
+    <div class="modal-overlay" id="successOverlay" style="z-index: 400;"></div>
+    <div id="successModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:var(--card-bg); padding:30px; border-radius:var(--radius-lg); z-index:401; text-align:center; width:90%; max-width:350px; box-shadow:0 15px 50px rgba(0,0,0,0.3);">
+      <div style="font-size:3.5rem; margin-bottom:10px;">🎉</div>
+      <h2 style="color:var(--text-main); margin:0 0 10px; font-family:'Playfair Display', serif;">Order Confirmed!</h2>
+      <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:20px; line-height: 1.5;">Thank you for your purchase. We've sent a receipt to your email. Your Order ID is:</p>
+      
+      <div style="background:var(--bg-color); border: 2px dashed #EFEBE9; padding:15px; border-radius:var(--radius-md); font-size:1.4rem; font-weight:700; color:var(--accent); margin-bottom:25px; letter-spacing:1px;" id="successOrderId">
+        <!-- Order ID goes here -->
+      </div>
+      
+      <div style="display: flex; gap: 10px;">
+        <button onclick="closeSuccessModal()" style="flex: 1; padding: 14px; border-radius: var(--radius-pill); border: 1.5px solid #EFEBE9; background: #FAFAFA; color: var(--text-main); font-weight: 700; cursor: pointer; font-family: inherit;">
+          Close
+        </button>
+        <button onclick="closeSuccessAndTrack()" style="flex: 1; padding: 14px; border-radius: var(--radius-pill); border: none; background: var(--text-main); color: white; font-weight: 700; cursor: pointer; font-family: inherit;">
+          Track Order
+        </button>
+      </div>
+    </div>
+
     <!-- Pop-Up Item Description Modal (ADDED) -->
     <div id="infoModal" onclick="if(event.target === this) this.style.display='none'" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.6); align-items:center; justify-content:center; padding: 20px; box-sizing: border-box;">
       <div style="background:var(--card-bg); padding:30px; border-radius:16px; max-width:400px; width:100%; text-align:center; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
@@ -610,6 +631,16 @@
         document.getElementById('statusMessage').innerText = '';
       }
 
+      function closeSuccessModal() {
+        document.getElementById('successOverlay').classList.remove('active');
+        document.getElementById('successModal').style.display = 'none';
+      }
+
+      function closeSuccessAndTrack() {
+        closeSuccessModal();
+        openTracker();
+      }
+
       function toggleGCash() {
         const method = document.getElementById("paymentMethod").value;
         const gcashSec = document.getElementById("gcashSection");
@@ -804,9 +835,7 @@
         .then(res => res.json())
         .then(result => {
           if (result.success) {
-            statusMsg.style.color = "#2E7D32"; 
-            statusMsg.innerHTML = `Success! Your Order ID is <strong>${result.data}</strong>`;
-            
+            // Reset the form and cart
             document.getElementById("orderForm").reset();
             if(map) { document.getElementById("map-container").style.display = "none"; }
             document.getElementById("gcashSection").style.display = "none";
@@ -822,7 +851,14 @@
             btn.disabled = false;
             btn.innerText = "Confirm Order";
             
-            setTimeout(closeAllSheets, 4000);
+            // 1. Instantly close the checkout sheet
+            closeAllSheets();
+            
+            // 2. Open the beautiful success modal
+            document.getElementById('successOrderId').innerText = result.data;
+            document.getElementById('successOverlay').classList.add('active');
+            document.getElementById('successModal').style.display = 'block';
+            
           } else {
             statusMsg.style.color = "#d32f2f";
             statusMsg.innerText = "Order error: " + result.error;
