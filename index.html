@@ -464,7 +464,7 @@
           const restoredQty = savedQuantities[item.name] || 0;
           
           card.innerHTML = `
-            <img src="${imgSrc}" class="product-image" alt="${item.name}" onclick="showInfo('${safeName}', '${safeDesc}')" style="cursor: pointer;" title="Click for details">
+            <img src="${imgSrc}" class="product-image" alt="${item.name}" loading="lazy" onclick="showInfo('${safeName}', '${safeDesc}')" style="cursor: pointer;" title="Click for details">
             <div class="product-info">
               <h3 class="product-name">${item.name}</h3>
               <div class="product-price">₱${item.price}</div>
