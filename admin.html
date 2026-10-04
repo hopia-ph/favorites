@@ -402,6 +402,7 @@
         document.getElementById('dashboard').style.display = 'block';
         loadMenuData();
         loadOrders();
+        switchTab('orders'); // <--- ADD THIS LINE 
       } else {
         if (err) {
           err.innerText = "Invalid Username or PIN";
