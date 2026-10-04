@@ -117,6 +117,13 @@
     @keyframes fadeout { from {bottom: 25px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     
     .loading { text-align: center; padding: 30px; color: var(--text-muted); font-weight: 600; font-size: 0.9rem; }
+    /* Toggle Switch */
+    .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #EFEBE9; transition: .4s; border-radius: 22px; }
+    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: #2E7D32; }
+    input:checked + .slider:before { transform: translateX(18px); }
   </style>
 </head>
 <body>
@@ -154,6 +161,7 @@
               <th>Description</th>
               <th style="width:90px;">Selling Price (₱)</th>
               <th style="width:90px;">Cost (₱)</th>
+              <th style="width:80px; text-align: center;">Available</th>
               <th style="width:130px;">Actions</th>
             </tr>
           </thead>
@@ -844,6 +852,12 @@
           <td style="color:var(--text-muted); font-size:0.85rem;">${item.description}</td>
           <td style="font-weight:600; color: #1565C0;">₱${item.price}</td>
           <td style="font-weight:600; color: #d32f2f;">₱${item.cost || 0}</td>
+          <td style="text-align: center; vertical-align: middle;">
+            <label class="switch">
+              <input type="checkbox" onchange="toggleVisibility(${index})" ${item.visible !== false ? 'checked' : ''}>
+              <span class="slider"></span>
+            </label>
+          </td>
           <td class="actions"><button class="btn" onclick="openItemModal(${index})">Edit</button><button class="btn btn-del" onclick="openDeleteModal(${index})">Delete</button></td>
         `;
         tbody.appendChild(tr);
@@ -921,6 +935,11 @@
       document.getElementById(modalId).style.display = 'none';
     }
 
+    function toggleVisibility(index) {
+      menuData[index].visible = !menuData[index].visible;
+      syncWithSheet();
+    }
+
     function saveItem() {
       const index = parseInt(document.getElementById('editIndex').value);
       const newItem = {
@@ -928,7 +947,8 @@
         description: document.getElementById('itemDesc').value,
         price: document.getElementById('itemPrice').value,
         cost: document.getElementById('itemCost').value,
-        imageUrl: document.getElementById('itemImg').value
+        imageUrl: document.getElementById('itemImg').value,
+        visible: index > -1 ? menuData[index].visible : true // Preserves toggle status
       };
       if (!newItem.name || !newItem.price) { showToast("Name and Selling Price are required."); return; }
       if (index > -1) { menuData[index] = newItem; } else { menuData.push(newItem); }
