@@ -746,6 +746,10 @@
         const mapUrl = (order.mapPin && String(order.mapPin).indexOf('http') !== -1) ? order.mapPin : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.address || '')}`;
         const mapHtml = `<a href="${mapUrl}" target="_blank" class="link-map" title="Open address on Google Maps">📍 ${order.address} ↗</a>`;
 
+        // Calculate the Admin Name Display
+        const username = formatAdminUser(order.updatedBy);
+        const updatedByDisplay = (username && username !== '') ? `<div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-top:4px;" title="${order.updatedBy}">👤 ${username}</div>` : '';
+
         tr.innerHTML = `
           <td class="col-order-cust">
             <div style="font-weight:700; color:var(--accent); font-size:0.9rem;">${order.orderId}</div>
