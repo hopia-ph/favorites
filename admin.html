@@ -339,15 +339,14 @@
     let currentStartDate = new Date();
     let currentEndDate = new Date();
 
+    let activeAdminPin = ''; // Stores the specific admin's PIN
+
     // --- API BRIDGE (Replaces google.script.run) ---
     async function apiCall(action, payload = null) {
-      const pinInput = document.getElementById('pinInput');
-      const pin = pinInput ? pinInput.value.trim() : '1919';
-      
       const response = await fetch(GAS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: action, pin: pin, payload: payload })
+        body: JSON.stringify({ action: action, pin: activeAdminPin, payload: payload })
       });
       
       const data = await response.json();
@@ -360,9 +359,20 @@
       const err = document.getElementById('loginError');
       const val = input ? String(input.value).trim() : '';
 
-      if (val === '1919') {
+      if (input) input.blur();
+
+      // The 4 assigned admin PINs
+      const validPins = ['1919', '2121', '1010', '2727'];
+
+      if (validPins.includes(val)) {
+        activeAdminPin = val; // Store the exact admin who logged in!
+        
         if (err) err.style.display = 'none';
-        document.getElementById('loginOverlay').remove();
+        const overlay = document.getElementById('loginOverlay');
+        if (overlay) {
+          overlay.style.display = 'none';
+          overlay.remove(); 
+        }
         document.getElementById('dashboard').style.display = 'block';
         loadMenuData();
         loadOrders();
