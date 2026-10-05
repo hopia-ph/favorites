@@ -366,7 +366,7 @@
         Total combined quantities for selected orders.
       </p>
 
-      <textarea id="supplierTextSummary" rows="11" readonly style="width:100%; font-family: 'Courier New', Courier, monospace; font-size: 0.82rem; padding: 10px; border: 1.5px solid var(--border-color); border-radius: 8px; background: #FAFAFA; resize: none; box-sizing: border-box; line-height: 1.45; white-space: pre; overflow-x: auto;"></textarea>
+      <textarea id="supplierTextSummary" rows="11" readonly style="width:100%; font-family: Consolas, 'Courier New', monospace; font-weight: 700; font-size: 0.88rem; color: #1A1A1A; padding: 12px; border: 2px solid var(--border-color); border-radius: 8px; background: #FFFDFB; resize: none; box-sizing: border-box; line-height: 1.5; white-space: pre; overflow-x: auto;"></textarea>
 
       <!-- Canvas for PNG Export -->
       <canvas id="supplierCanvas" style="display:none;"></canvas>
@@ -901,12 +901,12 @@
 
       const now = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
       
-      // Clean 28-character mobile-friendly layout
+      // Bold & Clean 28-character mobile layout
       let text = `============================\n`;
       text += ` SUPPLIER MASTER ORDER LIST \n`;
       text += `============================\n`;
-      text += `Date: ${now}\n`;
-      text += `Orders (${selectedIds.length}): ${selectedIds.join(', ')}\n`;
+      text += `DATE: ${now}\n`;
+      text += `ORDERS (${selectedIds.length}): ${selectedIds.join(', ')}\n`;
       text += `----------------------------\n\n`;
       text += `ITEMS TO ORDER:\n`;
 
@@ -931,11 +931,12 @@
       const ctx = canvas.getContext('2d');
       
       const lines = text.split('\n');
-      const fontSize = 15;
-      const lineHeight = 22;
+      const fontSize = 16;
+      const lineHeight = 24;
       const padding = 25;
       
-      ctx.font = `bold ${fontSize}px monospace`;
+      // Use heavy bold monospace font
+      ctx.font = `900 ${fontSize}px Consolas, 'Courier New', monospace`;
       let maxLineWidth = 320;
       lines.forEach(line => {
         const w = ctx.measureText(line).width;
@@ -949,14 +950,14 @@
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw border frame
+      // Draw bold outer border frame
       ctx.strokeStyle = '#3E2723';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 4;
       ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
 
-      // Render crisp text
-      ctx.fillStyle = '#2A1A17';
-      ctx.font = `bold ${fontSize}px monospace`;
+      // Render bold high-contrast text
+      ctx.fillStyle = '#111111';
+      ctx.font = `900 ${fontSize}px Consolas, 'Courier New', monospace`;
       
       lines.forEach((line, i) => {
         const y = padding + (i * lineHeight);
