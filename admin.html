@@ -2,166 +2,189 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Hopia & etc. - Admin Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
   
   <style>
     :root {
-      --bg-color: #FDF8F5; --card-bg: #FFFFFF; --text-main: #3E2723;
-      --text-muted: #8D6E63; --accent: #D84315; --accent-hover: #BF360C;
+      --bg-color: #FDF8F5; 
+      --card-bg: #FFFFFF; 
+      --text-main: #2A1A17;
+      --text-muted: #6D4C41; 
+      --accent: #D84315; 
+      --accent-hover: #BF360C;
       --border-color: #EFEBE9;
     }
     
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
     body { 
-      font-family: 'Plus Jakarta Sans', sans-serif; 
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; 
       background-color: var(--bg-color); 
       background-image: radial-gradient(#EFEBE9 2px, transparent 2px);
       background-size: 24px 24px;
       color: var(--text-main); 
       margin: 0; 
-      padding: 12px; 
+      padding: 10px; 
+      -webkit-font-smoothing: antialiased;
     }
     
-    #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); background-image: radial-gradient(#EFEBE9 2px, transparent 2px); background-size: 24px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-    .login-box { background: var(--card-bg); padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(62,39,35,0.1); text-align: center; max-width: 350px; width: 100%; }
-    .login-box h1 { font-family: 'Playfair Display', serif; margin: 0 0 20px; color: var(--text-main); }
-    .pin-input { width: 100%; box-sizing: border-box; padding: 15px; font-size: 1.5rem; text-align: center; border: 2px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; letter-spacing: 10px; }
+    /* Login Overlay */
+    #loginOverlay { 
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+      background: var(--bg-color); 
+      background-image: radial-gradient(#EFEBE9 2px, transparent 2px); 
+      background-size: 24px 24px; 
+      display: flex; flex-direction: column; align-items: center; justify-content: center; 
+      z-index: 1000; padding: 16px;
+    }
+    .login-box { 
+      background: var(--card-bg); padding: 32px 24px; border-radius: 16px; 
+      box-shadow: 0 10px 30px rgba(62,39,35,0.12); text-align: center; 
+      max-width: 360px; width: 100%; border: 1px solid var(--border-color);
+    }
+    .login-box h1 { font-family: 'Playfair Display', serif; margin: 0 0 8px; color: var(--text-main); font-size: 1.8rem; }
+    .pin-input { 
+      width: 100%; padding: 14px; font-size: 1rem; text-align: center; 
+      border: 2px solid var(--border-color); border-radius: 10px; margin-bottom: 12px; 
+      background: #FAFAFA; font-weight: 600;
+    }
+    .pin-input:focus { outline: none; border-color: var(--accent); background: white; }
     
-    .btn { background: var(--text-main); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: background 0.2s, color 0.2s; width: 100%; font-size: 0.95rem; }
-    .btn:hover { background: #2a1a17; }
-    .btn-accent { background: var(--accent); }
-    .btn-accent:hover { background: var(--accent-hover); }
-    .btn-outline { background: transparent; border: 2px solid var(--border-color); color: var(--text-main); }
-    .btn-outline:hover { background: var(--text-main); color: white; border-color: var(--text-main); }
+    /* Buttons */
+    .btn { 
+      background: var(--text-main); color: white; border: none; padding: 12px 18px; 
+      border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; 
+      width: 100%; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn:hover, .btn:active { background: #150c0a; }
+    .btn-accent { background: var(--accent); color: white; }
+    .btn-accent:hover, .btn-accent:active { background: var(--accent-hover); }
+    .btn-outline { background: var(--card-bg); border: 2px solid #D7CCC8; color: var(--text-main); }
+    .btn-outline:hover, .btn-outline:active { background: var(--text-main); color: white; border-color: var(--text-main); }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    .filter-select { padding: 8px 12px; border-radius: 8px; border: 1.5px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-weight: 600; cursor: pointer; font-family: inherit; font-size: 0.9rem; outline: none; transition: 0.2s; }
-    .filter-select:hover, .filter-select:focus { border-color: var(--accent); }
-    .nav-arrow { background: transparent; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; padding: 6px 14px; font-weight: bold; color: var(--text-main); background-color: var(--card-bg); transition: 0.2s; font-size: 1.1rem; }
-    .nav-arrow:hover { background-color: #f5f0ed; border-color: var(--text-main); }
+    /* Nav & Controls */
+    .filter-select { padding: 10px 14px; border-radius: 10px; border: 1.5px solid #D7CCC8; background: var(--card-bg); color: var(--text-main); font-weight: 700; font-size: 0.9rem; outline: none; }
+    .nav-arrow { background: var(--card-bg); border: 1.5px solid #D7CCC8; border-radius: 8px; cursor: pointer; padding: 8px 16px; font-weight: 800; color: var(--text-main); font-size: 1.1rem; }
 
     #dashboard { display: none; max-width: 1200px; margin: 0 auto; }
-    .tabs { display: flex; gap: 10px; margin-bottom: 12px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; overflow-x: auto; white-space: nowrap; }
-    .tab-btn { background: transparent; border: none; font-size: 0.95rem; font-weight: 700; color: var(--text-muted); cursor: pointer; padding: 8px 16px; border-radius: 8px; transition: 0.2s; }
-    .tab-btn:hover { background: #f5f0ed; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 14px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+    .tab-btn { background: transparent; border: none; font-size: 0.95rem; font-weight: 700; color: var(--text-muted); cursor: pointer; padding: 10px 18px; border-radius: 10px; transition: 0.2s; }
     .tab-btn.active { background: var(--text-main); color: white; }
 
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
-    .header h1 { font-family: 'Playfair Display', serif; margin: 0; background: var(--bg-color); padding-right: 10px; font-size: 1.6rem; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+    .header h1 { font-family: 'Playfair Display', serif; margin: 0; font-size: 1.6rem; font-weight: 700; }
     
-    .table-container { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 15px rgba(62,39,35,0.05); overflow-x: auto; margin-bottom: 20px; }
-    table { width: 100%; border-collapse: collapse; min-width: 780px; }
-    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: top; }
-    th { font-weight: 600; color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; }
-    .item-img { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; }
-    .actions button { padding: 5px 10px; margin-right: 4px; font-size: 0.8rem; width: auto; display: inline-block; }
-    .actions .btn-del { background: #d32f2f; color: white; border-color: #d32f2f; }
+    /* Table Responsive Formatting */
+    .table-container { background: var(--card-bg); border-radius: 14px; box-shadow: 0 4px 18px rgba(62,39,35,0.06); overflow-x: auto; margin-bottom: 20px; border: 1px solid var(--border-color); -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+    th { font-weight: 700; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; background: #FAF7F5; }
+    .item-img { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color); }
     
-    .col-order-cust { min-width: 170px; max-width: 220px; }
+    .col-order-cust { min-width: 180px; max-width: 220px; }
     .col-items { min-width: 220px; }
-    .col-total { min-width: 120px; white-space: nowrap; }
-    .col-status-admin { min-width: 135px; white-space: nowrap; }
+    .col-total { min-width: 125px; white-space: nowrap; }
+    .col-status-admin { min-width: 140px; white-space: nowrap; }
 
-    .row-inactive { opacity: 0.5; background-color: #fafafa; transition: 0.3s; }
-    .row-inactive:hover { opacity: 0.8; }
+    .row-inactive { opacity: 0.55; background-color: #FAFAFA; }
     
-    .status-select { padding: 5px 8px; border-radius: 6px; border: 1.5px solid var(--border-color); font-weight: 700; font-family: inherit; font-size: 0.75rem; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px; transition: 0.3s; width: 100%; max-width: 130px; }
-    .status-select:focus { outline: none; }
-    
+    /* Touch-friendly Status Selector */
+    .status-select { 
+      padding: 8px 10px; border-radius: 8px; border: 2px solid var(--border-color); 
+      font-weight: 800; font-family: inherit; font-size: 0.8rem; cursor: pointer; 
+      text-transform: uppercase; letter-spacing: 0.3px; width: 100%; max-width: 135px;
+    }
     .status-pending { background-color: #FFF3E0; color: #E65100; border-color: #FFE0B2; }
     .status-preparing { background-color: #E3F2FD; color: #1565C0; border-color: #BBDEFB; }
     .status-delivery { background-color: #F3E5F5; color: #6A1B9A; border-color: #E1BEE7; }
     .status-completed { background-color: #E8F5E9; color: #2E7D32; border-color: #C8E6C9; }
     .status-cancelled { background-color: #FFEBEE; color: #C62828; border-color: #FFCDD2; }
 
-    .order-summary-cell { font-size: 0.82rem; color: #333; white-space: pre-wrap; line-height: 1.35; }
-    .link-phone { color: #2E7D32; font-weight: 700; text-decoration: none; display: inline-block; margin: 2px 0; }
-    .link-map { color: var(--accent); font-weight: 600; text-decoration: none; display: inline-block; margin: 2px 0; }
+    .order-summary-cell { font-size: 0.88rem; color: #1A1A1A; font-weight: 600; white-space: pre-wrap; line-height: 1.4; }
+    .link-phone { color: #2E7D32; font-weight: 800; text-decoration: none; display: inline-block; margin: 3px 0; font-size: 0.88rem; }
+    .link-map { color: var(--accent); font-weight: 700; text-decoration: none; display: inline-block; margin: 3px 0; font-size: 0.88rem; }
 
-    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 200; }
-    .modal-content { background: var(--card-bg); padding: 25px; border-radius: 16px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .modal-header h2 { margin: 0; font-size: 1.3rem; }
-    .close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.85rem; }
-    .form-group input[type="text"], .form-group input[type="number"], .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; font-family: inherit; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 15px; }
+    /* Modals */
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 300; padding: 12px; }
+    .modal-content { background: var(--card-bg); padding: 22px; border-radius: 16px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .modal-header h2 { margin: 0; font-size: 1.3rem; font-weight: 700; }
+    .close { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: var(--text-muted); padding: 0 4px; }
+    
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main); }
+    .form-group input[type="text"], .form-group input[type="number"], .form-group textarea { 
+      width: 100%; padding: 12px; border: 1.5px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 1rem; background: #FAFAFA;
+    }
 
-    .dropzone { border: 2px dashed var(--border-color); padding: 15px; text-align: center; border-radius: 6px; cursor: pointer; color: var(--text-muted); font-size: 0.85rem; transition: background 0.2s; }
-    .dropzone:hover { background: #fafafa; }
-    #imagePreview { max-width: 100%; max-height: 120px; display: none; margin-top: 10px; border-radius: 6px; object-fit: contain; }
+    .dropzone { border: 2px dashed #D7CCC8; padding: 16px; text-align: center; border-radius: 8px; cursor: pointer; color: var(--text-muted); font-size: 0.88rem; font-weight: 600; background: #FAF7F5; }
+    #imagePreview { max-width: 100%; max-height: 120px; display: none; margin-top: 10px; border-radius: 8px; object-fit: contain; }
 
-    .dash-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-    .card { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(62,39,35,0.05); text-align: center; border: 1px solid var(--border-color); }
-    .card h3 { margin: 0; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
-    .card h1 { margin: 10px 0 0; font-size: 2.2rem; }
+    .dash-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .card { background: var(--card-bg); padding: 18px; border-radius: 14px; box-shadow: 0 4px 15px rgba(62,39,35,0.05); text-align: center; border: 1px solid var(--border-color); }
+    .card h3 { margin: 0; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+    .card h1 { margin: 8px 0 0; font-size: 2rem; font-weight: 800; }
 
-    .dash-bottom-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 20px; }
+    .dash-bottom-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 20px; }
     @media (max-width: 768px) { .dash-bottom-grid { grid-template-columns: 1fr; } }
     
-    .chart-container { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(62,39,35,0.05); border: 1px solid var(--border-color); position: relative; height: 350px; }
-    .top-sellers-container { background: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(62,39,35,0.05); border: 1px solid var(--border-color); }
+    .chart-container { background: var(--card-bg); padding: 18px; border-radius: 14px; box-shadow: 0 4px 15px rgba(62,39,35,0.05); border: 1px solid var(--border-color); position: relative; height: 320px; }
+    .top-sellers-container { background: var(--card-bg); padding: 18px; border-radius: 14px; box-shadow: 0 4px 15px rgba(62,39,35,0.05); border: 1px solid var(--border-color); }
     .top-sellers-list { list-style: none; padding: 0; margin: 0; }
-    .top-sellers-list li { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dashed var(--border-color); font-size: 0.95rem; }
-    .top-sellers-list li:last-child { border-bottom: none; }
-    .ts-name { font-weight: 600; color: var(--text-main); }
-    .ts-qty { background: var(--bg-color); color: var(--accent); padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; }
+    .top-sellers-list li { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--border-color); font-size: 0.92rem; }
+    .ts-name { font-weight: 700; color: var(--text-main); }
+    .ts-qty { background: var(--bg-color); color: var(--accent); padding: 3px 10px; border-radius: 6px; font-weight: 800; font-size: 0.85rem; }
 
-    #toast { visibility: hidden; min-width: 220px; background-color: var(--text-main); color: #fff; text-align: center; border-radius: 8px; padding: 12px 20px; position: fixed; z-index: 1000; left: 50%; bottom: 25px; transform: translateX(-50%); font-weight: 600; font-size: 0.85rem; }
+    #toast { visibility: hidden; min-width: 220px; background-color: var(--text-main); color: #fff; text-align: center; border-radius: 10px; padding: 12px 20px; position: fixed; z-index: 1000; left: 50%; bottom: 25px; transform: translateX(-50%); font-weight: 700; font-size: 0.9rem; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
     #toast.show { visibility: visible; animation: fadein 0.4s, fadeout 0.4s 2.5s; }
     @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 25px; opacity: 1;} }
     @keyframes fadeout { from {bottom: 25px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     
-    .loading { text-align: center; padding: 30px; color: var(--text-muted); font-weight: 600; font-size: 0.9rem; }
+    .loading { text-align: center; padding: 30px; color: var(--text-muted); font-weight: 700; font-size: 0.95rem; }
     
-    .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #EFEBE9; transition: .4s; border-radius: 22px; }
-    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #D7CCC8; transition: .4s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
     input:checked + .slider { background-color: #2E7D32; }
-    input:checked + .slider:before { transform: translateX(18px); }
+    input:checked + .slider:before { transform: translateX(20px); }
 
-    .order-chk { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
+    /* Touch Checkbox */
+    .order-chk { width: 22px; height: 22px; cursor: pointer; accent-color: var(--accent); }
 
-    /* Responsive Supplier Modal Fix */
+    /* Mobile Specific Optimizations */
     @media (max-width: 600px) {
-      .supplier-modal-content {
-        padding: 16px !important;
-        width: 92% !important;
-      }
-      .supplier-btn-group {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        gap: 8px !important;
-        width: 100% !important;
-      }
-      .supplier-btn-group .btn {
-        width: 100% !important;
-        font-size: 0.82rem !important;
-        padding: 10px 4px !important;
-        text-align: center;
-      }
-      .supplier-btn-group .supplier-btn-full {
-        grid-column: span 2 !important;
-      }
+      body { padding: 6px; }
+      .header h1 { font-size: 1.35rem; }
+      .supplier-modal-content { padding: 16px !important; width: 95% !important; }
+      .supplier-btn-group { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; width: 100% !important; }
+      .supplier-btn-group .btn { width: 100% !important; font-size: 0.85rem !important; padding: 12px 6px !important; }
+      .supplier-btn-group .supplier-btn-full { grid-column: span 2 !important; }
+      
+      .table-container { border-radius: 10px; }
+      th, td { padding: 10px 8px; }
+      .order-summary-cell { font-size: 0.84rem; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Login Screen -->
   <div id="loginOverlay">
     <div class="login-box">
       <h1>Hopia & etc.</h1>
-      <p style="color: var(--text-muted); margin-bottom: 20px;">Admin Dashboard</p>
-      <input type="text" id="usernameInput" class="pin-input" placeholder="Username" autocomplete="off" style="letter-spacing: normal; margin-bottom: 10px;">
+      <p style="color: var(--text-muted); font-weight: 600; margin-bottom: 20px;">Admin Dashboard</p>
+      <input type="text" id="usernameInput" class="pin-input" placeholder="Username" autocomplete="off" style="letter-spacing: normal; margin-bottom: 12px;">
       <input type="password" id="pinInput" class="pin-input" placeholder="••••" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off" onkeydown="if(event.key==='Enter') verifyPin();" oninput="if(this.value.length>=4) verifyPin();">
       <button type="button" class="btn btn-accent" onclick="verifyPin()">Login</button>
-      <div id="loginError" style="color: #d32f2f; margin-top: 10px; font-weight: 600; display: none;">Incorrect PIN</div>
+      <div id="loginError" style="color: #d32f2f; margin-top: 12px; font-weight: 700; display: none;">Incorrect Username or PIN</div>
     </div>
   </div>
 
+  <!-- Main Dashboard -->
   <div id="dashboard">
     <div class="tabs">
       <button class="tab-btn active" id="tabMenu" onclick="switchTab('menu')">Menu Manager</button>
@@ -169,7 +192,7 @@
       <button class="tab-btn" id="tabSales" onclick="switchTab('sales')">Sales Dashboard 📈</button>
     </div>
 
-    <!-- Menu View -->
+    <!-- Menu Manager View -->
     <div id="viewMenu">
       <div class="header">
         <h1>Menu List</h1>
@@ -179,11 +202,11 @@
         <table>
           <thead>
             <tr>
-              <th style="width:60px;">Image</th>
+              <th style="width:55px;">Image</th>
               <th>Name</th>
               <th>Description</th>
-              <th style="width:90px;">Selling Price (₱)</th>
-              <th style="width:90px;">Cost (₱)</th>
+              <th style="width:95px;">Price (₱)</th>
+              <th style="width:95px;">Cost (₱)</th>
               <th style="width:80px; text-align: center;">Available</th>
               <th style="width:130px;">Actions</th>
             </tr>
@@ -195,7 +218,7 @@
       </div>
     </div>
 
-    <!-- Orders View -->
+    <!-- Order Manager View -->
     <div id="viewOrders" style="display: none;">
       <div class="header">
         <h1>Recent Orders</h1>
@@ -210,7 +233,7 @@
         <table>
           <thead>
             <tr>
-              <th style="width: 40px; text-align: center;">
+              <th style="width: 44px; text-align: center;">
                 <input type="checkbox" id="selectAllCB" class="order-chk" onchange="toggleSelectAll(this)" title="Select All">
               </th>
               <th class="col-order-cust">Order & Customer</th>
@@ -230,7 +253,7 @@
     <div id="viewSales" style="display: none;">
       <div class="header">
         <h1>Sales Overview</h1>
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
           <select id="salesFilter" class="filter-select" onchange="onFilterChange()">
             <option value="week">Week</option>
             <option value="month">Month</option>
@@ -238,9 +261,9 @@
             <option value="all">All Time</option>
           </select>
           
-          <div id="dateControls" style="display: inline-flex; align-items: center; gap: 10px; background: var(--card-bg); border: 1.5px solid var(--border-color); padding: 4px; border-radius: 8px;">
+          <div id="dateControls" style="display: inline-flex; align-items: center; gap: 6px; background: var(--card-bg); border: 1.5px solid var(--border-color); padding: 4px 8px; border-radius: 10px;">
             <button class="nav-arrow" onclick="shiftDate(-1)">&#8592;</button>
-            <span id="dateRangeDisplay" style="font-weight: 700; font-size: 0.9rem; min-width: 140px; text-align: center; color: var(--text-main);">Current Period</span>
+            <span id="dateRangeDisplay" style="font-weight: 800; font-size: 0.88rem; min-width: 130px; text-align: center; color: var(--text-main);">Current Period</span>
             <button class="nav-arrow" onclick="shiftDate(1)">&#8594;</button>
           </div>
 
@@ -265,12 +288,12 @@
 
       <div class="dash-bottom-grid">
         <div class="chart-container">
-          <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1rem; color: var(--text-main);">Sales, Profit & Quantity Trend</h3>
+          <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 1rem; color: var(--text-main); font-weight: 700;">Sales & Profit Trend</h3>
           <canvas id="salesChart"></canvas>
         </div>
         
         <div class="top-sellers-container">
-          <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1rem; color: var(--text-main);">🏆 Top 5 Best Sellers</h3>
+          <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 1rem; color: var(--text-main); font-weight: 700;">🏆 Top 5 Best Sellers</h3>
           <ul class="top-sellers-list" id="topSellersList">
             <li style="color: var(--text-muted); font-size: 0.9rem;">Loading data...</li>
           </ul>
@@ -278,12 +301,12 @@
       </div>
       
       <div class="table-container" style="margin-top: 20px;">
-        <h3 style="margin: 0 0 15px 15px; padding-top: 20px; font-size: 1.2rem; color: var(--text-main);">Filtered Sales Records</h3>
+        <h3 style="margin: 0 0 12px 14px; padding-top: 16px; font-size: 1.1rem; color: var(--text-main); font-weight: 700;">Filtered Sales Records</h3>
         <table>
           <thead>
             <tr>
-              <th style="width: 140px;">Date</th>
-              <th style="width: 120px;">Order ID</th>
+              <th style="width: 130px;">Date</th>
+              <th style="width: 110px;">Order ID</th>
               <th>Items Sold</th>
               <th style="width: 110px;">Revenue (₱)</th>
               <th style="width: 110px;">Cost (₱)</th>
@@ -299,7 +322,7 @@
     </div>
   </div>
 
-  <!-- Item Modal -->
+  <!-- Add/Edit Item Modal -->
   <div id="itemModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -316,7 +339,7 @@
         <textarea id="itemDesc" rows="2" placeholder="Brief details..."></textarea>
       </div>
       
-      <div style="display: flex; gap: 15px; margin-bottom: 12px;">
+      <div style="display: flex; gap: 12px; margin-bottom: 12px;">
         <div class="form-group" style="flex: 1; margin-bottom: 0;">
           <label>Selling Price (₱)</label>
           <input type="number" id="itemPrice" placeholder="150">
@@ -328,14 +351,14 @@
       </div>
 
       <div class="form-group">
-        <label>Item Image (Click to upload or press Ctrl+V to paste)</label>
-        <div class="dropzone" id="dropzone">Click here to select an image or Paste (Ctrl+V) directly.</div>
+        <label>Item Image (Click or paste image)</label>
+        <div class="dropzone" id="dropzone">Click here to select photo or Paste (Ctrl+V)</div>
         <input type="file" id="fileInput" accept="image/*" style="display: none;">
         <input type="hidden" id="itemImg">
-        <div id="uploadStatus" style="font-size: 0.85rem; color: var(--accent); margin-top: 5px; font-weight: 600;"></div>
+        <div id="uploadStatus" style="font-size: 0.85rem; color: var(--accent); margin-top: 5px; font-weight: 700;"></div>
         <img id="imagePreview">
       </div>
-      <div class="modal-actions">
+      <div class="modal-actions" style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 15px;">
         <button class="btn btn-outline" style="width:auto;" onclick="closeModal('itemModal')">Cancel</button>
         <button class="btn" id="saveBtn" style="width:auto;" onclick="saveItem()">Save Item</button>
       </div>
@@ -344,34 +367,34 @@
 
   <!-- Delete Modal -->
   <div id="deleteModal" class="modal">
-    <div class="modal-content" style="text-align: center; max-width: 380px;">
+    <div class="modal-content" style="text-align: center; max-width: 360px;">
       <h2 style="margin-top:0;">Delete Item?</h2>
-      <p style="font-size: 0.9rem; color: #555;">Are you sure you want to remove this item from your menu? This cannot be undone.</p>
+      <p style="font-size: 0.9rem; color: #555;">Are you sure you want to remove this item? This action cannot be undone.</p>
       <input type="hidden" id="deleteIndex">
-      <div class="modal-actions" style="justify-content: center;">
+      <div class="modal-actions" style="justify-content: center; display: flex; gap: 8px; margin-top: 15px;">
         <button class="btn btn-outline" style="width:auto;" onclick="closeModal('deleteModal')">Cancel</button>
         <button class="btn" style="width:auto; background: #d32f2f;" onclick="confirmDelete()">Yes, Delete</button>
       </div>
     </div>
   </div>
 
-  <!-- Supplier Master List Modal -->
+  <!-- Supplier Master Order Modal -->
   <div id="supplierModal" class="modal">
-    <div class="modal-content supplier-modal-content">
+    <div class="modal-content supplier-modal-content" style="max-width: 480px;">
       <div class="modal-header">
-        <h2 style="font-size: 1.2rem;">Supplier Master Order List</h2>
+        <h2 style="font-size: 1.25rem;">Supplier Master Order List</h2>
         <button class="close" onclick="closeModal('supplierModal')">×</button>
       </div>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: -10px; margin-bottom: 10px;">
-        Total combined quantities for selected orders.
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: -10px; margin-bottom: 12px; font-weight: 600;">
+        Total combined item quantities for selected orders.
       </p>
 
-      <textarea id="supplierTextSummary" rows="11" readonly style="width:100%; font-family: Consolas, 'Courier New', monospace; font-weight: 700; font-size: 0.88rem; color: #1A1A1A; padding: 12px; border: 2px solid var(--border-color); border-radius: 8px; background: #FFFDFB; resize: none; box-sizing: border-box; line-height: 1.5; white-space: pre; overflow-x: auto;"></textarea>
+      <textarea id="supplierTextSummary" rows="11" readonly style="width:100%; font-family: Consolas, 'Courier New', monospace; font-weight: 800; font-size: 0.88rem; color: #000000; padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; background: #FFFDFB; resize: none; box-sizing: border-box; line-height: 1.48; white-space: pre; overflow-x: auto;"></textarea>
 
-      <!-- Canvas for PNG Export -->
+      <!-- Canvas for Image Export -->
       <canvas id="supplierCanvas" style="display:none;"></canvas>
 
-      <div class="modal-actions supplier-btn-group" style="margin-top: 12px;">
+      <div class="modal-actions supplier-btn-group" style="margin-top: 14px;">
         <button class="btn btn-outline" onclick="copySupplierText()">📋 Copy Text</button>
         <button class="btn btn-outline" onclick="copySupplierImage()">🖼️ Copy Image</button>
         <button class="btn btn-accent supplier-btn-full" onclick="downloadSupplierImage()">📥 Download Image</button>
@@ -627,12 +650,12 @@
 
                filteredSalesRows += `
                  <tr>
-                   <td style="font-size: 0.85rem; color: var(--text-muted);">${order.date}</td>
-                   <td style="font-weight: 700; color: var(--accent);">${order.orderId}</td>
-                   <td style="font-size: 0.85rem; white-space: pre-wrap;">${order.items}</td>
-                   <td style="color: #1565C0; font-weight: 600;">₱${rev.toLocaleString()}</td>
-                   <td style="color: #d32f2f; font-weight: 600;">₱${orderCost.toLocaleString()}</td>
-                   <td style="color: #2E7D32; font-weight: 700;">₱${orderProfit.toLocaleString()}</td>
+                   <td style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">${order.date}</td>
+                   <td style="font-weight: 800; color: var(--accent);">${order.orderId}</td>
+                   <td style="font-size: 0.85rem; white-space: pre-wrap; font-weight: 600;">${order.items}</td>
+                   <td style="color: #1565C0; font-weight: 700;">₱${rev.toLocaleString()}</td>
+                   <td style="color: #d32f2f; font-weight: 700;">₱${orderCost.toLocaleString()}</td>
+                   <td style="color: #2E7D32; font-weight: 800;">₱${orderProfit.toLocaleString()}</td>
                  </tr>
                `;
              }
@@ -649,7 +672,7 @@
       const salesTableBody = document.getElementById('salesTableBody');
       if (salesTableBody) {
         if (filteredSalesRows === '') {
-          salesTableBody.innerHTML = '<tr><td colspan="6" class="loading">No completed orders found for this time period.</td></tr>';
+          salesTableBody.innerHTML = '<tr><td colspan="6" class="loading">No completed orders found for this period.</td></tr>';
         } else {
           salesTableBody.innerHTML = filteredSalesRows;
         }
@@ -669,7 +692,7 @@
         .sort((a, b) => b.qty - a.qty);
 
       if (sortedItems.length === 0) {
-        listEl.innerHTML = '<li style="color: var(--text-muted);">No sales data for this period.</li>';
+        listEl.innerHTML = '<li style="color: var(--text-muted); font-weight: 600;">No sales data for this period.</li>';
         return;
       }
 
@@ -760,7 +783,6 @@
       });
     }
 
-    // --- OPTIMIZED ORDER MANAGER LOGIC ---
     function loadOrders(isAutoRefresh = false) {
       const tbody = document.getElementById('ordersTableBody');
       if (!isAutoRefresh && tbody) {
@@ -792,6 +814,12 @@
         const tr = document.createElement('tr');
         const s = order.status ? order.status.trim() : 'Pending';
         
+        // Disable checkbox if order is Completed or Cancelled
+        const isDone = (s === "Completed" || s === "Cancelled");
+        if (isDone) {
+          selectedOrderIds.delete(order.orderId);
+        }
+
         let totalPcs = 0;
         if (order.items) {
           const matches = order.items.match(/(\d+)\s*x/gi);
@@ -803,8 +831,8 @@
           }
         }
         
-        const totalPcsText = totalPcs > 0 ? `<div style="margin-top:5px; padding-top:3px; border-top:1px dashed #D7CCC8; font-weight:700; color:var(--text-main); font-size:0.8rem;">Total Items: ${totalPcs} pcs</div>` : '';
-        let rowClass = (s === "Completed" || s === "Cancelled") ? "row-inactive" : "";
+        const totalPcsText = totalPcs > 0 ? `<div style="margin-top:5px; padding-top:4px; border-top:1px dashed #D7CCC8; font-weight:800; color:var(--text-main); font-size:0.82rem;">Total Items: ${totalPcs} pcs</div>` : '';
+        let rowClass = isDone ? "row-inactive" : "";
         let selectClass = "status-select ";
         if (s === "Pending") selectClass += "status-pending";
         else if (s === "Preparing") selectClass += "status-preparing";
@@ -818,7 +846,7 @@
         let statusOptions = statuses.map(stat => `<option value="${stat}" ${s === stat ? 'selected' : ''}>${stat}</option>`).join("");
 
         let proofLink = "";
-        if (order.paymentMethod === "GCash" && order.proofOfPayment) proofLink = `<br><a href="${order.proofOfPayment}" target="_blank" style="color:var(--accent); font-size:0.8rem; font-weight:600; text-decoration:none;">🧾 View GCash Proof</a>`;
+        if (order.paymentMethod === "GCash" && order.proofOfPayment) proofLink = `<br><a href="${order.proofOfPayment}" target="_blank" style="color:var(--accent); font-size:0.82rem; font-weight:700; text-decoration:none;">🧾 View GCash Proof</a>`;
 
         const cleanPhone = String(order.phone || '').replace(/[^0-9+]/g, '');
         const phoneHtml = cleanPhone ? `<a href="tel:${cleanPhone}" class="link-phone" title="Click to call customer">📞 ${order.phone}</a>` : `📞 ${order.phone}`;
@@ -826,21 +854,21 @@
         const mapHtml = `<a href="${mapUrl}" target="_blank" class="link-map" title="Open address on Google Maps">📍 ${order.address} ↗</a>`;
 
         const username = formatAdminUser(order.updatedBy);
-        const updatedByDisplay = (username && username !== '') ? `<div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-top:4px;" title="${order.updatedBy}">👤 ${username}</div>` : '';
+        const updatedByDisplay = (username && username !== '') ? `<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:5px;" title="${order.updatedBy}">👤 ${username}</div>` : '';
         
-        const isChecked = selectedOrderIds.has(order.orderId);
+        const isChecked = !isDone && selectedOrderIds.has(order.orderId);
 
         tr.innerHTML = `
           <td style="text-align: center; vertical-align: middle;">
-            <input type="checkbox" class="order-chk order-row-cb" data-id="${order.orderId}" ${isChecked ? 'checked' : ''} onchange="toggleOrderSelect('${order.orderId}', this.checked)">
+            <input type="checkbox" class="order-chk order-row-cb" data-id="${order.orderId}" ${isChecked ? 'checked' : ''} ${isDone ? 'disabled style="opacity:0.3; cursor:not-allowed;" title="Done order (cannot select)"' : ''} onchange="toggleOrderSelect('${order.orderId}', this.checked)">
           </td>
           <td class="col-order-cust">
-            <div style="font-weight:700; color:var(--accent); font-size:0.9rem;">${order.orderId}</div>
-            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">${order.date}</div>
-            <strong style="font-size:0.88rem;">${order.name}</strong><br><span style="font-size:0.8rem;">${phoneHtml}</span><br><span style="font-size:0.8rem;">${mapHtml}</span>
+            <div style="font-weight:800; color:var(--accent); font-size:0.92rem;">${order.orderId}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; margin-bottom:4px;">${order.date}</div>
+            <strong style="font-size:0.9rem; color:var(--text-main);">${order.name}</strong><br><span style="font-size:0.82rem;">${phoneHtml}</span><br><span style="font-size:0.82rem;">${mapHtml}</span>
           </td>
           <td class="col-items order-summary-cell">${order.items}${totalPcsText}</td>
-          <td class="col-total"><strong style="font-size:0.95rem;">${order.total}</strong><br><span style="font-size:0.8rem; color:#555;">💳 ${order.paymentMethod}</span>${proofLink}</td>
+          <td class="col-total"><strong style="font-size:0.98rem; color:var(--text-main);">${order.total}</strong><br><span style="font-size:0.82rem; color:#555; font-weight:600;">💳 ${order.paymentMethod}</span>${proofLink}</td>
           <td class="col-status-admin"><select class="${selectClass}" onchange="changeStatus(this, ${order.rowNumber})">${statusOptions}</select><div class="updated-by-cell">${updatedByDisplay}</div></td>
         `;
         tbody.appendChild(tr);
@@ -849,15 +877,17 @@
       updateSelectedUI();
     }
 
-    // --- MULTI-SELECT CHECKBOX LOGIC ---
     function toggleSelectAll(masterCB) {
       const isChecked = masterCB.checked;
       orderData.forEach(order => {
-        if (isChecked) selectedOrderIds.add(order.orderId);
-        else selectedOrderIds.delete(order.orderId);
+        const s = order.status ? order.status.trim() : 'Pending';
+        if (s !== "Completed" && s !== "Cancelled") {
+          if (isChecked) selectedOrderIds.add(order.orderId);
+          else selectedOrderIds.delete(order.orderId);
+        }
       });
 
-      document.querySelectorAll('.order-row-cb').forEach(cb => cb.checked = isChecked);
+      document.querySelectorAll('.order-row-cb:not([disabled])').forEach(cb => cb.checked = isChecked);
       updateSelectedUI();
     }
 
@@ -873,12 +903,16 @@
       const countSpan = document.getElementById('selectedCount');
       const masterCB = document.getElementById('selectAllCB');
 
+      const activeOrdersCount = orderData.filter(o => {
+        const s = o.status ? o.status.trim() : 'Pending';
+        return s !== "Completed" && s !== "Cancelled";
+      }).length;
+
       if (countSpan) countSpan.innerText = count;
-      if (btn) btn.style.display = count > 0 ? 'inline-block' : 'none';
-      if (masterCB) masterCB.checked = (count > 0 && count === orderData.length);
+      if (btn) btn.style.display = count > 0 ? 'inline-flex' : 'none';
+      if (masterCB) masterCB.checked = (activeOrdersCount > 0 && count === activeOrdersCount);
     }
 
-    // --- MASTER SUPPLIER LIST & IMAGE GENERATOR ---
     function openSupplierModal() {
       if (selectedOrderIds.size === 0) return;
 
@@ -901,7 +935,6 @@
 
       const now = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
       
-      // Bold & Clean 28-character mobile layout
       let text = `============================\n`;
       text += ` SUPPLIER MASTER ORDER LIST \n`;
       text += `============================\n`;
@@ -935,7 +968,6 @@
       const lineHeight = 24;
       const padding = 25;
       
-      // Use heavy bold monospace font
       ctx.font = `900 ${fontSize}px Consolas, 'Courier New', monospace`;
       let maxLineWidth = 320;
       lines.forEach(line => {
@@ -946,17 +978,14 @@
       canvas.width = Math.ceil(maxLineWidth + (padding * 2));
       canvas.height = Math.ceil((lines.length * lineHeight) + (padding * 2));
 
-      // Draw clean canvas background
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw bold outer border frame
       ctx.strokeStyle = '#3E2723';
       ctx.lineWidth = 4;
       ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
 
-      // Render bold high-contrast text
-      ctx.fillStyle = '#111111';
+      ctx.fillStyle = '#000000';
       ctx.font = `900 ${fontSize}px Consolas, 'Courier New', monospace`;
       
       lines.forEach((line, i) => {
@@ -984,10 +1013,10 @@
           navigator.clipboard.write([item]).then(() => {
             showToast("Summary image copied to clipboard! 🖼️✓");
           }).catch(err => {
-            showToast("Image copy not supported on this browser. Use Download.");
+            showToast("Image copy not supported on browser. Use Download.");
           });
         } catch (err) {
-          showToast("Image copy not supported on this browser. Use Download.");
+          showToast("Image copy not supported on browser. Use Download.");
         }
       });
     }
@@ -1022,7 +1051,7 @@
           
           const updatedByCell = tr.querySelector('.updated-by-cell');
           if (updatedByCell && res.updatedBy) {
-            updatedByCell.innerHTML = `<div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-top:4px;" title="${res.updatedBy}">👤 ${formatAdminUser(res.updatedBy)}</div>`;
+            updatedByCell.innerHTML = `<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:5px;" title="${res.updatedBy}">👤 ${formatAdminUser(res.updatedBy)}</div>`;
           }
         })
         .catch(err => {
@@ -1055,17 +1084,17 @@
         const imgSrc = item.imageUrl || 'https://via.placeholder.com/50?text=No+Img';
         tr.innerHTML = `
           <td><img src="${imgSrc}" class="item-img"></td>
-          <td style="font-weight:600;">${item.name}</td>
-          <td style="color:var(--text-muted); font-size:0.85rem;">${item.description}</td>
-          <td style="font-weight:600; color: #1565C0;">₱${item.price}</td>
-          <td style="font-weight:600; color: #d32f2f;">₱${item.cost || 0}</td>
+          <td style="font-weight:700;">${item.name}</td>
+          <td style="color:var(--text-muted); font-size:0.86rem; font-weight:600;">${item.description}</td>
+          <td style="font-weight:700; color: #1565C0;">₱${item.price}</td>
+          <td style="font-weight:700; color: #d32f2f;">₱${item.cost || 0}</td>
           <td style="text-align: center; vertical-align: middle;">
             <label class="switch">
               <input type="checkbox" onchange="toggleVisibility(${index})" ${String(item.visible).toLowerCase() !== 'false' ? 'checked' : ''}>
               <span class="slider"></span>
             </label>
           </td>
-          <td class="actions"><button class="btn" onclick="openItemModal(${index})">Edit</button><button class="btn btn-del" onclick="openDeleteModal(${index})">Delete</button></td>
+          <td class="actions" style="white-space: nowrap;"><button class="btn" style="width:auto; padding:6px 12px; font-size:0.82rem;" onclick="openItemModal(${index})">Edit</button><button class="btn" style="width:auto; padding:6px 12px; font-size:0.82rem; background: #d32f2f;" onclick="openDeleteModal(${index})">Delete</button></td>
         `;
         tbody.appendChild(tr);
       });
@@ -1182,7 +1211,7 @@
       setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
     }
 
-    // SILENT AUTO-REFRESH (30s)
+    // Silent Auto Refresh
     let autoRefreshTimer;
 
     function startAutoRefresh() {
@@ -1193,7 +1222,7 @@
         const isLoggedIn = document.getElementById('loginOverlay') && document.getElementById('loginOverlay').style.display === 'none';
         
         if (isLoggedIn && isOrdersTabActive) {
-          loadOrders(true); // Silent background refresh
+          loadOrders(true);
         }
       }, 30000); 
     }
