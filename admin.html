@@ -28,7 +28,6 @@
     .login-box h1 { font-family: 'Playfair Display', serif; margin: 0 0 20px; color: var(--text-main); }
     .pin-input { width: 100%; box-sizing: border-box; padding: 15px; font-size: 1.5rem; text-align: center; border: 2px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; letter-spacing: 10px; }
     
-    /* Button Styles & Hover Fix */
     .btn { background: var(--text-main); color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: background 0.2s, color 0.2s; width: 100%; font-size: 0.95rem; }
     .btn:hover { background: #2a1a17; }
     .btn-accent { background: var(--accent); }
@@ -37,7 +36,6 @@
     .btn-outline:hover { background: var(--text-main); color: white; border-color: var(--text-main); }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    /* Custom Filter Dropdown & Nav Arrows */
     .filter-select { padding: 8px 12px; border-radius: 8px; border: 1.5px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-weight: 600; cursor: pointer; font-family: inherit; font-size: 0.9rem; outline: none; transition: 0.2s; }
     .filter-select:hover, .filter-select:focus { border-color: var(--accent); }
     .nav-arrow { background: transparent; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; padding: 6px 14px; font-weight: bold; color: var(--text-main); background-color: var(--card-bg); transition: 0.2s; font-size: 1.1rem; }
@@ -117,13 +115,15 @@
     @keyframes fadeout { from {bottom: 25px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     
     .loading { text-align: center; padding: 30px; color: var(--text-muted); font-weight: 600; font-size: 0.9rem; }
-    /* Toggle Switch */
+    
     .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #EFEBE9; transition: .4s; border-radius: 22px; }
     .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
     input:checked + .slider { background-color: #2E7D32; }
     input:checked + .slider:before { transform: translateX(18px); }
+
+    .order-chk { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
   </style>
 </head>
 <body>
@@ -166,7 +166,7 @@
             </tr>
           </thead>
           <tbody id="tableBody">
-            <tr><td colspan="6" class="loading">Loading menu data...</td></tr>
+            <tr><td colspan="7" class="loading">Loading menu data...</td></tr>
           </tbody>
         </table>
       </div>
@@ -176,12 +176,20 @@
     <div id="viewOrders" style="display: none;">
       <div class="header">
         <h1>Recent Orders</h1>
-        <button class="btn btn-outline" style="width: auto;" onclick="loadOrders()">↻ Refresh</button>
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <button class="btn btn-accent" id="btnSupplierList" style="width: auto; display: none;" onclick="openSupplierModal()">
+            📋 Master Supplier List (<span id="selectedCount">0</span>)
+          </button>
+          <button class="btn btn-outline" style="width: auto;" onclick="loadOrders(false)">↻ Refresh</button>
+        </div>
       </div>
       <div class="table-container">
         <table>
           <thead>
             <tr>
+              <th style="width: 40px; text-align: center;">
+                <input type="checkbox" id="selectAllCB" class="order-chk" onchange="toggleSelectAll(this)" title="Select All">
+              </th>
               <th class="col-order-cust">Order & Customer</th>
               <th class="col-items">Items</th>
               <th class="col-total">Total & Payment</th>
@@ -189,7 +197,7 @@
             </tr>
           </thead>
           <tbody id="ordersTableBody">
-            <tr><td colspan="4" class="loading">Loading orders...</td></tr>
+            <tr><td colspan="5" class="loading">Loading orders...</td></tr>
           </tbody>
         </table>
       </div>
@@ -217,7 +225,6 @@
         </div>
       </div>
       
-      <!-- Top KPIs -->
       <div class="dash-cards">
         <div class="card">
           <h3>Total Revenue</h3>
@@ -233,7 +240,6 @@
         </div>
       </div>
 
-      <!-- Graph & Top Sellers -->
       <div class="dash-bottom-grid">
         <div class="chart-container">
           <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1rem; color: var(--text-main);">Sales, Profit & Quantity Trend</h3>
@@ -248,7 +254,6 @@
         </div>
       </div>
       
-      <!-- Filtered Sales Records Table -->
       <div class="table-container" style="margin-top: 20px;">
         <h3 style="margin: 0 0 15px 15px; padding-top: 20px; font-size: 1.2rem; color: var(--text-main);">Filtered Sales Records</h3>
         <table>
@@ -327,22 +332,42 @@
     </div>
   </div>
 
+  <!-- Supplier Master List Modal -->
+  <div id="supplierModal" class="modal">
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="modal-header">
+        <h2>Supplier Master Order List</h2>
+        <button class="close" onclick="closeModal('supplierModal')">×</button>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: -10px;">
+        Total combined quantities for selected orders.
+      </p>
+
+      <textarea id="supplierTextSummary" rows="11" readonly style="width:100%; font-family: monospace; font-size: 0.88rem; padding: 12px; border: 1.5px solid var(--border-color); border-radius: 8px; background: #FAFAFA; resize: vertical; box-sizing: border-box; line-height: 1.4;"></textarea>
+
+      <!-- Off-screen Canvas for Image Generation -->
+      <canvas id="supplierCanvas" style="display:none;"></canvas>
+
+      <div class="modal-actions" style="margin-top: 15px; flex-wrap: wrap; gap: 8px;">
+        <button class="btn btn-outline" style="width: auto;" onclick="copySupplierText()">📋 Copy Text</button>
+        <button class="btn btn-outline" style="width: auto;" onclick="copySupplierImage()">🖼️ Copy Image</button>
+        <button class="btn btn-accent" style="width: auto;" onclick="downloadSupplierImage()">📥 Download Image</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast">Message here</div>
 
-  <!-- Chart.js Graph Library -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
-    // ==========================================
-    // REQUIRED: PASTE YOUR GOOGLE SCRIPT URL HERE
-    // ==========================================
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxteaBSrcbGcNiAJXf5heS2mKgNim20CU7yzq3wtagocT-oPmBVgxuqfwOT3y536Bu2/exec";
     
     let menuData = [];
     let orderData = [];
+    let selectedOrderIds = new Set();
     let salesChartInstance = null; 
 
-    // Date Navigation State
     let currentFilter = 'week';
     let dateOffset = 0;
     let currentStartDate = new Date();
@@ -351,13 +376,11 @@
     let activeUsername = ''; 
     let activeAdminPin = ''; 
 
-    // Format the email so it looks clean on the dashboard
     function formatAdminUser(email) {
       if (!email || email === '-') return '';
       return String(email).split('@')[0];
     }
 
-    // --- API BRIDGE ---
     async function apiCall(action, payload = null) {
       const response = await fetch(GAS_URL, {
         method: 'POST',
@@ -388,7 +411,6 @@
         "mia3": "2727"
       };
 
-      // Check if username exists AND matches the assigned PIN
       if (adminUsers[uVal] && adminUsers[uVal] === pVal) {
         activeUsername = uVal;
         activeAdminPin = pVal;
@@ -401,8 +423,8 @@
         }
         document.getElementById('dashboard').style.display = 'block';
         loadMenuData();
-        loadOrders();
-        switchTab('orders'); // <--- ADD THIS LINE 
+        loadOrders(false);
+        switchTab('orders'); 
       } else {
         if (err) {
           err.innerText = "Invalid Username or PIN";
@@ -436,7 +458,6 @@
       }
     }
 
-    // --- DATE NAVIGATOR LOGIC ---
     function onFilterChange() {
       currentFilter = document.getElementById('salesFilter').value;
       dateOffset = 0;
@@ -716,28 +737,33 @@
       });
     }
 
-    // --- ORDER MANAGER LOGIC ---
-    function loadOrders() {
+    // --- OPTIMIZED ORDER MANAGER LOGIC ---
+    function loadOrders(isAutoRefresh = false) {
       const tbody = document.getElementById('ordersTableBody');
-      if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="loading">Loading orders...</td></tr>';
+      if (!isAutoRefresh && tbody) {
+        tbody.innerHTML = '<tr><td colspan="5" class="loading">Loading orders...</td></tr>';
+      }
       
       apiCall('getOrders')
-        .then(renderOrders)
+        .then(orders => renderOrders(orders, isAutoRefresh))
         .catch(err => {
-          if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="loading" style="color:#d32f2f;">Error loading orders: ${err.message}</td></tr>`;
+          if (!isAutoRefresh && tbody) {
+            tbody.innerHTML = `<tr><td colspan="5" class="loading" style="color:#d32f2f;">Error loading orders: ${err.message}</td></tr>`;
+          }
         });
     }
 
-    function renderOrders(orders) {
+    function renderOrders(orders, isAutoRefresh = false) {
       orderData = orders;
       const tbody = document.getElementById('ordersTableBody');
       if (!tbody) return;
-      tbody.innerHTML = '';
 
       if (!orders || orders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="loading">No orders found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="loading">No orders found.</td></tr>';
         return;
       }
+
+      tbody.innerHTML = '';
 
       orders.forEach(order => {
         const tr = document.createElement('tr');
@@ -776,11 +802,15 @@
         const mapUrl = (order.mapPin && String(order.mapPin).indexOf('http') !== -1) ? order.mapPin : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.address || '')}`;
         const mapHtml = `<a href="${mapUrl}" target="_blank" class="link-map" title="Open address on Google Maps">📍 ${order.address} ↗</a>`;
 
-        // Calculate the Admin Name Display
         const username = formatAdminUser(order.updatedBy);
         const updatedByDisplay = (username && username !== '') ? `<div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-top:4px;" title="${order.updatedBy}">👤 ${username}</div>` : '';
+        
+        const isChecked = selectedOrderIds.has(order.orderId);
 
         tr.innerHTML = `
+          <td style="text-align: center; vertical-align: middle;">
+            <input type="checkbox" class="order-chk order-row-cb" data-id="${order.orderId}" ${isChecked ? 'checked' : ''} onchange="toggleOrderSelect('${order.orderId}', this.checked)">
+          </td>
           <td class="col-order-cust">
             <div style="font-weight:700; color:var(--accent); font-size:0.9rem;">${order.orderId}</div>
             <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">${order.date}</div>
@@ -792,6 +822,157 @@
         `;
         tbody.appendChild(tr);
       });
+
+      updateSelectedUI();
+    }
+
+    // --- MULTI-SELECT CHECKBOX LOGIC ---
+    function toggleSelectAll(masterCB) {
+      const isChecked = masterCB.checked;
+      orderData.forEach(order => {
+        if (isChecked) selectedOrderIds.add(order.orderId);
+        else selectedOrderIds.delete(order.orderId);
+      });
+
+      document.querySelectorAll('.order-row-cb').forEach(cb => cb.checked = isChecked);
+      updateSelectedUI();
+    }
+
+    function toggleOrderSelect(orderId, isChecked) {
+      if (isChecked) selectedOrderIds.add(orderId);
+      else selectedOrderIds.delete(orderId);
+      updateSelectedUI();
+    }
+
+    function updateSelectedUI() {
+      const count = selectedOrderIds.size;
+      const btn = document.getElementById('btnSupplierList');
+      const countSpan = document.getElementById('selectedCount');
+      const masterCB = document.getElementById('selectAllCB');
+
+      if (countSpan) countSpan.innerText = count;
+      if (btn) btn.style.display = count > 0 ? 'inline-block' : 'none';
+      if (masterCB) masterCB.checked = (count > 0 && count === orderData.length);
+    }
+
+    // --- MASTER SUPPLIER LIST & IMAGE GENERATOR ---
+    function openSupplierModal() {
+      if (selectedOrderIds.size === 0) return;
+
+      const itemTotals = {};
+      const selectedIds = Array.from(selectedOrderIds);
+
+      orderData.forEach(order => {
+        if (selectedOrderIds.has(order.orderId) && order.items) {
+          const lines = order.items.split('\n');
+          lines.forEach(line => {
+            const match = line.match(/^(\d+)\s*x\s*(.+)/i);
+            if (match) {
+              const qty = parseInt(match[1], 10);
+              let name = match[2].replace(/\s*\([^)]*\)$/i, '').trim();
+              itemTotals[name] = (itemTotals[name] || 0) + qty;
+            }
+          });
+        }
+      });
+
+      const now = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+      let text = `======================================\n`;
+      text += `    SUPPLIER MASTER ORDER SUMMARY     \n`;
+      text += `======================================\n`;
+      text += `Date: ${now}\n`;
+      text += `Orders Included (${selectedIds.length}): ${selectedIds.join(', ')}\n`;
+      text += `--------------------------------------\n\n`;
+      text += `ITEMS TO ORDER FROM SUPPLIER:\n`;
+
+      let totalPcs = 0;
+      Object.keys(itemTotals).sort().forEach(item => {
+        const qty = itemTotals[item];
+        totalPcs += qty;
+        text += ` • ${qty}x ${item}\n`;
+      });
+
+      text += `\n--------------------------------------\n`;
+      text += `TOTAL PIECES REQUIRED: ${totalPcs} pcs\n`;
+      text += `======================================`;
+
+      document.getElementById('supplierTextSummary').value = text;
+      generateSupplierCanvasImage(text);
+      document.getElementById('supplierModal').style.display = 'flex';
+    }
+
+    function generateSupplierCanvasImage(text) {
+      const canvas = document.getElementById('supplierCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      const lines = text.split('\n');
+      const fontSize = 15;
+      const lineHeight = 22;
+      const padding = 25;
+      
+      ctx.font = `bold ${fontSize}px monospace`;
+      let maxLineWidth = 320;
+      lines.forEach(line => {
+        const w = ctx.measureText(line).width;
+        if (w > maxLineWidth) maxLineWidth = w;
+      });
+
+      canvas.width = Math.ceil(maxLineWidth + (padding * 2));
+      canvas.height = Math.ceil((lines.length * lineHeight) + (padding * 2));
+
+      // Draw clean canvas background
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw border frame
+      ctx.strokeStyle = '#3E2723';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+      // Render crisp text
+      ctx.fillStyle = '#2A1A17';
+      ctx.font = `bold ${fontSize}px monospace`;
+      
+      lines.forEach((line, i) => {
+        const y = padding + (i * lineHeight);
+        ctx.fillText(line, padding, y);
+      });
+    }
+
+    function copySupplierText() {
+      const txt = document.getElementById('supplierTextSummary');
+      txt.select();
+      navigator.clipboard.writeText(txt.value).then(() => {
+        showToast("Text summary copied! ✓");
+      }).catch(() => {
+        document.execCommand('copy');
+        showToast("Text summary copied! ✓");
+      });
+    }
+
+    function copySupplierImage() {
+      const canvas = document.getElementById('supplierCanvas');
+      canvas.toBlob(blob => {
+        try {
+          const item = new ClipboardItem({ 'image/png': blob });
+          navigator.clipboard.write([item]).then(() => {
+            showToast("Summary image copied to clipboard! 🖼️✓");
+          }).catch(err => {
+            showToast("Image copy not supported on this browser. Use Download.");
+          });
+        } catch (err) {
+          showToast("Image copy not supported on this browser. Use Download.");
+        }
+      });
+    }
+
+    function downloadSupplierImage() {
+      const canvas = document.getElementById('supplierCanvas');
+      const link = document.createElement('a');
+      link.download = `Supplier_Order_Summary_${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast("Summary image downloaded! 📥✓");
     }
 
     function changeStatus(selectElement, rowNumber) {
@@ -813,7 +994,6 @@
           showToast(res.message);
           selectElement.disabled = false;
           
-          // INSTANT UI UPDATE: Instantly swaps the name on the screen to the active admin!
           const updatedByCell = tr.querySelector('.updated-by-cell');
           if (updatedByCell && res.updatedBy) {
             updatedByCell.innerHTML = `<div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-top:4px;" title="${res.updatedBy}">👤 ${formatAdminUser(res.updatedBy)}</div>`;
@@ -827,12 +1007,12 @@
 
     function loadMenuData() {
       const tbody = document.getElementById('tableBody');
-      if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="loading">Loading menu data...</td></tr>';
+      if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="loading">Loading menu data...</td></tr>';
       
       apiCall('getMenu')
         .then(renderTable)
         .catch(err => {
-          if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="loading" style="color:#d32f2f;">Error loading menu: ${err.message}</td></tr>`;
+          if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="loading" style="color:#d32f2f;">Error loading menu: ${err.message}</td></tr>`;
         });
     }
 
@@ -842,7 +1022,7 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      if (menuData.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="loading">No items found. Add one above!</td></tr>'; return; }
+      if (menuData.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="loading">No items found. Add one above!</td></tr>'; return; }
 
       menuData.forEach((item, index) => {
         const tr = document.createElement('tr');
@@ -949,7 +1129,7 @@
         price: document.getElementById('itemPrice').value,
         cost: document.getElementById('itemCost').value,
         imageUrl: document.getElementById('itemImg').value,
-        visible: index > -1 ? menuData[index].visible : true // Preserves toggle status
+        visible: index > -1 ? menuData[index].visible : true
       };
       if (!newItem.name || !newItem.price) { showToast("Name and Selling Price are required."); return; }
       if (index > -1) { menuData[index] = newItem; } else { menuData.push(newItem); }
@@ -976,28 +1156,22 @@
       setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
     }
 
-    // ==========================================
-    // AUTO-REFRESH ORDERS EVERY 30 SECONDS
-    // ==========================================
+    // SILENT AUTO-REFRESH (30s)
     let autoRefreshTimer;
 
     function startAutoRefresh() {
-      // Clear any existing timer just in case
       if (autoRefreshTimer) clearInterval(autoRefreshTimer);
       
-      // Refresh the orders table every 30 seconds
       autoRefreshTimer = setInterval(() => {
-        // Only refresh if the user is logged in AND viewing the Orders tab
         const isOrdersTabActive = document.getElementById('viewOrders').style.display !== 'none';
         const isLoggedIn = document.getElementById('loginOverlay') && document.getElementById('loginOverlay').style.display === 'none';
         
         if (isLoggedIn && isOrdersTabActive) {
-          loadOrders();
+          loadOrders(true); // Silent background refresh
         }
       }, 30000); 
     }
 
-    // Start the timer when the page finishes loading
     window.addEventListener('load', startAutoRefresh);
   </script>
 </body>
