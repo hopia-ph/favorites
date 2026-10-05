@@ -17,7 +17,6 @@
       }
       * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
       
-      /* EXACT ORIGINAL BACKGROUND RESTORED (stroke-opacity: 0.30) */
       body { 
         font-family: 'Plus Jakarta Sans', sans-serif; 
         background-color: #FDF8F5; 
@@ -55,29 +54,29 @@
       .share-btn:hover { background: #FFF3E0; border-color: var(--accent); color: var(--accent); }
       
       .menu-container { padding: 0 20px; max-width: 800px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
-	  .product-card { 
-	          background: var(--card-bg); 
-	          border-radius: var(--radius-lg); 
-	          box-shadow: 0 4px 16px rgba(62, 39, 35, 0.04); 
-	          overflow: hidden; 
-	          display: flex; 
-	          flex-direction: column; 
-	          border: 1px solid #EFEBE9;
-	          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
-	        }
+      .product-card { 
+        background: var(--card-bg); 
+        border-radius: var(--radius-lg); 
+        box-shadow: 0 4px 16px rgba(62, 39, 35, 0.04); 
+        overflow: hidden; 
+        display: flex; 
+        flex-direction: column; 
+        border: 1px solid #EFEBE9;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+      }
 
-	        /* Card Hover Lift Effect */
-	        .product-card:hover {
-	          transform: translateY(-4px);
-	          box-shadow: 0 12px 28px rgba(62, 39, 35, 0.12);
-	        }
+      /* Card Hover Lift Effect */
+      .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(62, 39, 35, 0.12);
+      }
       
-	        /* CARD HIGHLIGHT WHEN ITEM QUANTITY > 0 */
-	        .product-card.selected {
-	          border: 2px solid var(--accent) !important;
-	          background-color: #FFF8F5 !important;
-	          box-shadow: 0 8px 24px rgba(216, 67, 21, 0.16) !important;
-	        }
+      /* CARD HIGHLIGHT WHEN ITEM QUANTITY > 0 */
+      .product-card.selected {
+        border: 2px solid var(--accent) !important;
+        background-color: #FFF8F5 !important;
+        box-shadow: 0 8px 24px rgba(216, 67, 21, 0.16) !important;
+      }
 
       .product-image { width: 100%; height: 150px; object-fit: cover; }
       .product-info { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
@@ -393,7 +392,7 @@
         </div>
         
         <div style="text-align: center; margin-bottom: 20px;">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://quirona.github.io/hopia-store/" alt="Store QR Code" style="border-radius: 12px; border: 2px solid #EFEBE9; padding: 10px; background: white;">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://hopia-ph.github.io/favorites/" alt="Store QR Code" style="border-radius: 12px; border: 2px solid #EFEBE9; padding: 10px; background: white;">
           <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; font-weight: 600;">Scan to open store</div>
         </div>
 
@@ -402,19 +401,19 @@
         </p>
 
         <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-          <input type="text" id="shareUrlInput" value="https://quirona.github.io/hopia-store/" readonly style="flex: 1; padding: 12px; border: 1.5px solid #EFEBE9; border-radius: var(--radius-md); font-weight: 700; background: #FAFAFA; color: var(--text-main);">
+          <input type="text" id="shareUrlInput" value="https://hopia-ph.github.io/favorites/" readonly style="flex: 1; padding: 12px; border: 1.5px solid #EFEBE9; border-radius: var(--radius-md); font-weight: 700; background: #FAFAFA; color: var(--text-main);">
           <button type="button" class="btn-accent" onclick="copyStoreLink()" style="width: auto; padding: 0 20px; border-radius: var(--radius-md); font-weight: 700;">Copy</button>
         </div>
         <div id="copyNotice" style="color: #2E7D32; font-size: 0.85rem; font-weight: 700; margin-bottom: 15px; display: none; text-align: center;">Link copied to clipboard! ✓</div>
 
         <div class="contact-options">
-          <a href="viber://forward?text=Check%20out%20Hopia%20%26%20etc.%20freshly%20baked%20pastries!%20https%3A%2F%2Fquirona.github.io%2Fhopia-store%2F" class="contact-opt-btn opt-viber">
+          <a href="viber://forward?text=Check%20out%20Hopia%20%26%20etc.%20freshly%20baked%20pastries!%20https%3A%2F%2Fhopia-ph.github.io%2Ffavorites%2F" class="contact-opt-btn opt-viber">
             <span style="font-size: 1.3rem;">💜</span> Share via Viber
           </a>
-          <a href="https://api.whatsapp.com/send?text=Check%20out%20Hopia%20%26%20etc.%20freshly%20baked%20pastries!%20https%3A%2F%2Fquirona.github.io%2Fhopia-store%2F" target="_blank" class="contact-opt-btn opt-whatsapp">
+          <a href="https://api.whatsapp.com/send?text=Check%20out%20Hopia%20%26%20etc.%20freshly%20baked%20pastries!%20https%3A%2F%2Fhopia-ph.github.io%2Ffavorites%2F" target="_blank" class="contact-opt-btn opt-whatsapp">
             <span style="font-size: 1.3rem;">💬</span> Share via WhatsApp
           </a>
-          <a href="https://www.facebook.com/sharer/sharer.php?u=https://quirona.github.io/hopia-store/" target="_blank" class="contact-opt-btn" style="background: #1877F2; color: white;">
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https://hopia-ph.github.io/favorites/" target="_blank" class="contact-opt-btn" style="background: #1877F2; color: white;">
             <span style="font-size: 1.3rem;">📘</span> Share via Facebook
           </a>
         </div>
@@ -451,36 +450,36 @@
       </div>
     </div>
 
-	<script>
-	      // Force page to always reload at the top
-	      if ('scrollRestoration' in history) {
-	        history.scrollRestoration = 'manual';
-	      }
+    <script>
+      // Force page to always reload at the top
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
 
-	      const API_URL = "https://script.google.com/macros/s/AKfycbxteaBSrcbGcNiAJXf5heS2mKgNim20CU7yzq3wtagocT-oPmBVgxuqfwOT3y536Bu2/exec";
-	      let menuData = [];
-	      let totalQty = 0;
-	      let totalAmount = 0;
-	      let map = null;
-	      let marker = null;
+      const API_URL = "https://script.google.com/macros/s/AKfycbxteaBSrcbGcNiAJXf5heS2mKgNim20CU7yzq3wtagocT-oPmBVgxuqfwOT3y536Bu2/exec";
+      let menuData = [];
+      let totalQty = 0;
+      let totalAmount = 0;
+      let map = null;
+      let marker = null;
 
-	      // SPEED UPGRADE: Instant Loading via Local Storage Cache
-	      window.addEventListener('load', function() {
-	        // Scroll to top immediately on page load
-	        window.scrollTo(0, 0);
+      // SPEED UPGRADE: Instant Loading via Local Storage Cache
+      window.addEventListener('load', function() {
+        // Scroll to top immediately on page load
+        window.scrollTo(0, 0);
 
-	        const cachedMenu = localStorage.getItem('hopiaMenuCache');
-	        if (cachedMenu) {
-	          try {
-	            const parsedCache = JSON.parse(cachedMenu);
-	            const visibleMenu = parsedCache.filter(item => String(item.visible).toLowerCase() !== 'false');
-	            renderMenu(visibleMenu);
-	          } catch(e) {}
-	        }
+        const cachedMenu = localStorage.getItem('hopiaMenuCache');
+        if (cachedMenu) {
+          try {
+            const parsedCache = JSON.parse(cachedMenu);
+            const visibleMenu = parsedCache.filter(item => String(item.visible).toLowerCase() !== 'false');
+            renderMenu(visibleMenu);
+          } catch(e) {}
+        }
 
-	        fetchMenuData(); 
-	        setInterval(fetchMenuData, 15000); 
-	      });
+        fetchMenuData(); 
+        setInterval(fetchMenuData, 15000); 
+      });
 
       function fetchMenuData() {
         fetch(API_URL, {
@@ -665,7 +664,7 @@
             document.getElementById('copyNotice').style.display = 'none';
           }, 3000);
         } catch (err) {
-          alert("Please copy manually: https://quirona.github.io/hopia-store/");
+          alert("Please copy manually: https://hopia-ph.github.io/favorites/");
         }
       }
 
