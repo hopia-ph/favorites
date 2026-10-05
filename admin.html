@@ -124,6 +124,29 @@
     input:checked + .slider:before { transform: translateX(18px); }
 
     .order-chk { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
+
+    /* Responsive Supplier Modal Fix */
+    @media (max-width: 600px) {
+      .supplier-modal-content {
+        padding: 16px !important;
+        width: 92% !important;
+      }
+      .supplier-btn-group {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        width: 100% !important;
+      }
+      .supplier-btn-group .btn {
+        width: 100% !important;
+        font-size: 0.82rem !important;
+        padding: 10px 4px !important;
+        text-align: center;
+      }
+      .supplier-btn-group .supplier-btn-full {
+        grid-column: span 2 !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -334,24 +357,24 @@
 
   <!-- Supplier Master List Modal -->
   <div id="supplierModal" class="modal">
-    <div class="modal-content" style="max-width: 520px;">
+    <div class="modal-content supplier-modal-content">
       <div class="modal-header">
-        <h2>Supplier Master Order List</h2>
+        <h2 style="font-size: 1.2rem;">Supplier Master Order List</h2>
         <button class="close" onclick="closeModal('supplierModal')">×</button>
       </div>
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: -10px;">
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: -10px; margin-bottom: 10px;">
         Total combined quantities for selected orders.
       </p>
 
-      <textarea id="supplierTextSummary" rows="11" readonly style="width:100%; font-family: monospace; font-size: 0.88rem; padding: 12px; border: 1.5px solid var(--border-color); border-radius: 8px; background: #FAFAFA; resize: vertical; box-sizing: border-box; line-height: 1.4;"></textarea>
+      <textarea id="supplierTextSummary" rows="11" readonly style="width:100%; font-family: 'Courier New', Courier, monospace; font-size: 0.82rem; padding: 10px; border: 1.5px solid var(--border-color); border-radius: 8px; background: #FAFAFA; resize: none; box-sizing: border-box; line-height: 1.45; white-space: pre; overflow-x: auto;"></textarea>
 
-      <!-- Off-screen Canvas for Image Generation -->
+      <!-- Canvas for PNG Export -->
       <canvas id="supplierCanvas" style="display:none;"></canvas>
 
-      <div class="modal-actions" style="margin-top: 15px; flex-wrap: wrap; gap: 8px;">
-        <button class="btn btn-outline" style="width: auto;" onclick="copySupplierText()">📋 Copy Text</button>
-        <button class="btn btn-outline" style="width: auto;" onclick="copySupplierImage()">🖼️ Copy Image</button>
-        <button class="btn btn-accent" style="width: auto;" onclick="downloadSupplierImage()">📥 Download Image</button>
+      <div class="modal-actions supplier-btn-group" style="margin-top: 12px;">
+        <button class="btn btn-outline" onclick="copySupplierText()">📋 Copy Text</button>
+        <button class="btn btn-outline" onclick="copySupplierImage()">🖼️ Copy Image</button>
+        <button class="btn btn-accent supplier-btn-full" onclick="downloadSupplierImage()">📥 Download Image</button>
       </div>
     </div>
   </div>
@@ -877,13 +900,15 @@
       });
 
       const now = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
-      let text = `======================================\n`;
-      text += `    SUPPLIER MASTER ORDER SUMMARY     \n`;
-      text += `======================================\n`;
+      
+      // Clean 28-character mobile-friendly layout
+      let text = `============================\n`;
+      text += ` SUPPLIER MASTER ORDER LIST \n`;
+      text += `============================\n`;
       text += `Date: ${now}\n`;
-      text += `Orders Included (${selectedIds.length}): ${selectedIds.join(', ')}\n`;
-      text += `--------------------------------------\n\n`;
-      text += `ITEMS TO ORDER FROM SUPPLIER:\n`;
+      text += `Orders (${selectedIds.length}): ${selectedIds.join(', ')}\n`;
+      text += `----------------------------\n\n`;
+      text += `ITEMS TO ORDER:\n`;
 
       let totalPcs = 0;
       Object.keys(itemTotals).sort().forEach(item => {
@@ -892,9 +917,9 @@
         text += ` • ${qty}x ${item}\n`;
       });
 
-      text += `\n--------------------------------------\n`;
-      text += `TOTAL PIECES REQUIRED: ${totalPcs} pcs\n`;
-      text += `======================================`;
+      text += `\n----------------------------\n`;
+      text += `TOTAL REQUIRED: ${totalPcs} pcs\n`;
+      text += `============================`;
 
       document.getElementById('supplierTextSummary').value = text;
       generateSupplierCanvasImage(text);
