@@ -309,6 +309,28 @@
           </ul>
         </div>
       </div>
+
+      <!-- Itemized Profit Breakdown Table -->
+      <div class="table-container" style="margin-top: 20px;">
+        <h3 style="margin: 0 0 12px 14px; padding-top: 16px; font-size: 1.1rem; color: var(--text-main); font-weight: 700;">
+          📊 Profit Breakdown by Item
+        </h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Item Name</th>
+              <th style="width: 100px; text-align: center;">Qty Sold</th>
+              <th style="width: 110px;">Selling Price</th>
+              <th style="width: 100px;">Unit Cost</th>
+              <th style="width: 110px;">Profit / Unit</th>
+              <th style="width: 120px;">Total Profit</th>
+            </tr>
+          </thead>
+          <tbody id="itemProfitTableBody">
+            <tr><td colspan="6" class="loading">Loading item profit data...</td></tr>
+          </tbody>
+        </table>
+      </div>
       
       <div class="table-container" style="margin-top: 20px;">
         <h3 style="margin: 0 0 12px 14px; padding-top: 16px; font-size: 1.1rem; color: var(--text-main); font-weight: 700;">Filtered Sales Records</h3>
@@ -408,6 +430,20 @@
         <button class="btn btn-outline" onclick="copySupplierText()">📋 Copy Text</button>
         <button class="btn btn-outline" onclick="copySupplierImage()">🖼️ Copy Image</button>
         <button class="btn btn-accent supplier-btn-full" onclick="downloadSupplierImage()">📥 Download Image</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GCash Proof Modal -->
+  <div id="proofModal" class="modal" onclick="if(event.target === this) closeModal('proofModal')">
+    <div class="modal-content" style="max-width: 420px; text-align: center; padding: 20px;">
+      <div class="modal-header">
+        <h2 style="font-size: 1.2rem;">GCash Proof of Payment</h2>
+        <button class="close" onclick="closeModal('proofModal')">×</button>
+      </div>
+      <img id="proofModalImg" src="" alt="GCash Proof" style="width: 100%; max-height: 70vh; object-fit: contain; border-radius: 10px; border: 1.5px solid var(--border-color); margin: 10px 0;">
+      <div style="display: flex; justify-content: center; margin-top: 10px;">
+        <button class="btn btn-outline" style="width: auto;" onclick="closeModal('proofModal')">Close</button>
       </div>
     </div>
   </div>
@@ -592,7 +628,7 @@
       let totalRevenue = 0;
       let totalCost = 0;
       let chartGroups = {};
-      let itemSalesMap = {};
+      let itemStatsMap = {}; 
       let filteredSalesRows = '';
 
       if (currentFilter === 'week') {
@@ -606,10 +642,17 @@
         months.forEach((month, i) => { chartGroups[i] = { label: month, revenue: 0, profit: 0, items: 0 }; });
       }
 
-      const costMap = {};
+      // Map costs and selling prices from menuData
+      const menuLookup = {};
       if (menuData) {
         menuData.forEach(item => { 
-          if (item && item.name) costMap[item.name.toLowerCase().trim()] = parseFloat(item.cost) || 0; 
+          if (item && item.name) {
+            menuLookup[item.name.toLowerCase().trim()] = {
+              name: item.name,
+              price: parseFloat(item.price) || 0,
+              cost: parseFloat(item.cost) || 0
+            };
+          }
         });
       }
 
@@ -625,21 +668,43 @@
                
                let orderCost = 0;
                let itemsCount = 0;
+
                if (order.items) {
                  const lines = order.items.split('\n');
                  lines.forEach(line => {
-                    const match = line.match(/^(\d+)x\s+(.+?)(?:\s+\(|s*$)/i); 
+                    const match = line.match(/^(\d+)\s*x\s*(.+?)(?:\s*\([^)]*\))?$/i);
                     if (match) {
-                      const qty = parseInt(match[1]);
+                      const qty = parseInt(match[1], 10);
                       itemsCount += qty;
-                      const itemName = match[2].trim();
-                      const itemCost = costMap[itemName.toLowerCase()] || 0;
+                      const rawName = match[2].trim();
+                      const menuItem = menuLookup[rawName.toLowerCase()];
                       
-                      orderCost += (qty * itemCost);
-                      itemSalesMap[itemName] = (itemSalesMap[itemName] || 0) + qty;
+                      const unitPrice = menuItem ? menuItem.price : 0;
+                      const unitCost = menuItem ? menuItem.cost : 0;
+                      const unitProfit = unitPrice - unitCost;
+                      const lineCost = qty * unitCost;
+                      const lineProfit = qty * unitProfit;
+
+                      orderCost += lineCost;
+
+                      // Accumulate Item-Level Profit Metrics
+                      const itemKey = menuItem ? menuItem.name : rawName;
+                      if (!itemStatsMap[itemKey]) {
+                        itemStatsMap[itemKey] = {
+                          name: itemKey,
+                          qty: 0,
+                          unitPrice: unitPrice,
+                          unitCost: unitCost,
+                          unitProfit: unitProfit,
+                          totalProfit: 0
+                        };
+                      }
+                      itemStatsMap[itemKey].qty += qty;
+                      itemStatsMap[itemKey].totalProfit += lineProfit;
                     }
                  });
                }
+
                totalCost += orderCost;
                const orderProfit = rev - orderCost;
 
@@ -681,25 +746,20 @@
 
       const salesTableBody = document.getElementById('salesTableBody');
       if (salesTableBody) {
-        if (filteredSalesRows === '') {
-          salesTableBody.innerHTML = '<tr><td colspan="6" class="loading">No completed orders found for this period.</td></tr>';
-        } else {
-          salesTableBody.innerHTML = filteredSalesRows;
-        }
+        salesTableBody.innerHTML = filteredSalesRows || '<tr><td colspan="6" class="loading">No completed orders found for this period.</td></tr>';
       }
 
-      updateTopSellers(itemSalesMap);
+      updateTopSellers(itemStatsMap);
+      renderItemProfitTable(itemStatsMap);
       renderChart(chartGroups);
     }
 
-    function updateTopSellers(itemSalesMap) {
+    function updateTopSellers(itemStatsMap) {
       const listEl = document.getElementById('topSellersList');
       if (!listEl) return;
       listEl.innerHTML = '';
       
-      const sortedItems = Object.keys(itemSalesMap)
-        .map(name => ({ name: name, qty: itemSalesMap[name] }))
-        .sort((a, b) => b.qty - a.qty);
+      const sortedItems = Object.values(itemStatsMap).sort((a, b) => b.qty - a.qty);
 
       if (sortedItems.length === 0) {
         listEl.innerHTML = '<li style="color: var(--text-muted); font-weight: 600;">No sales data for this period.</li>';
@@ -716,10 +776,41 @@
         listEl.innerHTML += `
           <li>
             <span class="ts-name">${medal} ${item.name}</span>
-            <span class="ts-qty">${item.qty} pcs</span>
+            <div style="text-align: right;">
+              <span class="ts-qty">${item.qty} pcs</span>
+              <div style="font-size: 0.75rem; color: #2E7D32; font-weight: 700; margin-top: 2px;">+₱${item.totalProfit.toLocaleString()} profit</div>
+            </div>
           </li>
         `;
       });
+    }
+
+    function renderItemProfitTable(itemStatsMap) {
+      const tbody = document.getElementById('itemProfitTableBody');
+      if (!tbody) return;
+
+      const items = Object.values(itemStatsMap).sort((a, b) => b.totalProfit - a.totalProfit);
+
+      if (items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="loading">No item sales recorded for this period.</td></tr>';
+        return;
+      }
+
+      let rowsHtml = '';
+      items.forEach(item => {
+        rowsHtml += `
+          <tr>
+            <td style="font-weight: 700; color: var(--text-main);">${item.name}</td>
+            <td style="text-align: center; font-weight: 800; color: var(--accent);">${item.qty} pcs</td>
+            <td style="color: #1565C0; font-weight: 700;">₱${item.unitPrice.toLocaleString()}</td>
+            <td style="color: #d32f2f; font-weight: 700;">₱${item.unitCost.toLocaleString()}</td>
+            <td style="color: #2E7D32; font-weight: 700;">+₱${item.unitProfit.toLocaleString()}</td>
+            <td style="color: #2E7D32; font-weight: 800; font-size: 0.95rem;">+₱${item.totalProfit.toLocaleString()}</td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = rowsHtml;
     }
 
     function renderChart(chartGroups) {
@@ -866,7 +957,9 @@
         let statusOptions = statuses.map(stat => `<option value="${stat}" ${s === stat ? 'selected' : ''}>${stat}</option>`).join("");
 
         let proofLink = "";
-        if (order.paymentMethod === "GCash" && order.proofOfPayment) proofLink = `<br><a href="${order.proofOfPayment}" target="_blank" style="color:var(--accent); font-size:0.82rem; font-weight:700; text-decoration:none;">🧾 View GCash Proof</a>`;
+        if (order.paymentMethod === "GCash" && order.proofOfPayment) {
+          proofLink = `<br><button type="button" onclick="openProofModal(${index})" style="background:none; border:none; color:var(--accent); font-size:0.82rem; font-weight:700; cursor:pointer; padding:0; text-decoration:underline;">🧾 View GCash Proof</button>`;
+        }
 
         const cleanPhone = String(order.phone || '').replace(/[^0-9+]/g, '');
         const phoneHtml = cleanPhone ? `<a href="tel:${cleanPhone}" class="link-phone" title="Click to call customer">📞 ${order.phone}</a>` : `📞 ${order.phone}`;
@@ -1248,6 +1341,16 @@
     }
 
     window.addEventListener('load', startAutoRefresh);
+
+    function openProofModal(index) {
+      const order = orderData[index];
+      if (!order || !order.proofOfPayment) {
+        showToast("No proof image uploaded for this order.");
+        return;
+      }
+      document.getElementById('proofModalImg').src = order.proofOfPayment;
+      document.getElementById('proofModal').style.display = 'flex';
+    }
   </script>
 </body>
 </html>
