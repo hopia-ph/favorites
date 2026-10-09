@@ -606,7 +606,7 @@
         
         let summaryText = "";
 
-        // HIGH-VISIBILITY NUDGE BANNER (< 3 ITEMS)
+        // FLAVOR MIX NUDGE BANNER (< 3 ITEMS)
         if (totalQty < 3) {
           const needed = 3 - totalQty;
           summaryText += `
@@ -614,7 +614,7 @@
               <span style="font-size: 1.6rem; line-height: 1;">😋</span>
               <div style="font-size: 0.88rem; color: #2A1A17; line-height: 1.4;">
                 <strong style="color: var(--accent); font-size: 0.95rem;">Why pick just one?</strong><br>
-                Add <span style="background: var(--accent); color: white; padding: 2px 7px; border-radius: 6px; font-weight: 800; font-size: 0.85rem;">${needed} more</span> treat${needed > 1 ? 's' : ''} to mix & match flavors for coffee break!
+                Add <span style="background: var(--accent); color: white; padding: 2px 7px; border-radius: 6px; font-weight: 800; font-size: 0.85rem;">${needed} more</span> treat${needed > 1 ? 's' : ''} to mix & match flavors for your family or coffee break!
               </div>
             </div>`;
         }
@@ -642,10 +642,9 @@
                           <span style="color:var(--accent);">₱${totalAmount}</span>
                         </div>
                         
-                        <!-- HIGH-VISIBILITY DELIVERY FEE NOTE -->
-                        <div style="margin-top: 14px; padding: 10px 12px; background: #FFF8F5; border-left: 4px solid var(--accent); border-top: 1px solid #EFEBE9; border-right: 1px solid #EFEBE9; border-bottom: 1px solid #EFEBE9; border-radius: 8px; font-size: 0.84rem; color: #2A1A17; font-weight: 700; display: flex; align-items: center; gap: 8px;">
-                          <span style="font-size: 1.1rem;">🛵</span>
-                          <span><strong style="color: var(--accent);">Note:</strong> Delivery fee applies depending on location.</span>
+                        <!-- FAINT GRAY COMPACT 1-LINER DELIVERY NOTE -->
+                        <div style="margin-top: 12px; padding: 6px 8px; background: #F7F7F7; border: 1px solid #EAEAEA; border-radius: 8px; font-size: 0.73rem; color: #757575; text-align: center; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                          🛵 Delivery fee applies depending on location.
                         </div>`;
         
         document.getElementById('summaryBox').innerHTML = summaryText;
