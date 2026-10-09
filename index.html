@@ -243,12 +243,29 @@
             >
           </div>
           <div class="input-group">
-            <label>Delivery Address</label>
-            <textarea id="custAddress" rows="3" required placeholder="House No., Street, City, Landmark" autocomplete="street-address"></textarea>
+            <label>Delivery Address <span style="color:#d32f2f;">*</span></label>
+            <textarea id="custAddress" rows="2" required placeholder="House/Unit #, Street, Barangay, City" autocomplete="street-address"></textarea>
           </div>
+
+          <!-- NEW: Landmark / Gate Color Field -->
           <div class="input-group">
-            <label>Google Maps Pin Link (Optional)</label>
-            <input type="url" id="custPin" placeholder="https://maps.app.goo.gl/...">
+            <label>Nearest Landmark / Gate Color <span style="color:var(--accent); font-size:0.8rem;">(Recommended)</span></label>
+            <input type="text" id="custLandmark" placeholder="e.g. In front of 7-Eleven / Brown gate #42">
+          </div>
+
+          <!-- Pin Location with Live Preview Verification -->
+          <div class="input-group">
+            <label>Google Maps Pin Link <span style="color:var(--text-muted); font-size:0.8rem;">(Optional)</span></label>
+            <input type="url" id="custPin" placeholder="https://maps.app.goo.gl/..." oninput="verifyPinLink(this.value)">
+            
+            <!-- Dynamic Preview Button -->
+            <div id="pinPreviewBox" style="display:none; margin-top:6px; padding:6px 10px; background:#E8F5E9; border:1px solid #C8E6C9; border-radius:6px; font-size:0.8rem;">
+              <a id="pinPreviewBtn" href="#" target="_blank" style="color:#2E7D32; font-weight:700; text-decoration:underline;">📍 Tap to double check your pinned location on map ↗</a>
+            </div>
+
+            <div style="font-size:0.76rem; color:var(--text-muted); margin-top:4px; line-height:1.35;">
+              💡 <em>Tip: Drop a pin at your exact gate in Google Maps and copy the Share link.</em>
+            </div>
           </div>
           
           <button type="button" class="btn btn-outline" id="detectLocBtn" onclick="initMap()" style="width: 100%; margin-bottom: 10px; font-size: 0.9rem; padding: 10px; font-weight: 600; background: #FAFAFA;">
@@ -868,6 +885,19 @@
         setTimeout(function() { map.invalidateSize(); }, 300);
       }
 
+      function verifyPinLink(val) {
+        const box = document.getElementById('pinPreviewBox');
+        const btn = document.getElementById('pinPreviewBtn');
+        const cleanUrl = String(val).trim();
+
+        if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
+          btn.href = cleanUrl;
+          box.style.display = 'block';
+        } else {
+          box.style.display = 'none';
+        }
+      }
+
       function submitOrder(e) {
         e.preventDefault();
         
@@ -897,12 +927,17 @@
           if (qty > 0) selectedItems.push(`${qty}x ${item.name} (₱${qty * item.price})`);
         });
 
+        const rawAddress = document.getElementById("custAddress").value.trim();
+        const landmarkEl = document.getElementById("custLandmark");
+        const landmark = landmarkEl ? landmarkEl.value.trim() : "";
+        const fullAddress = landmark ? `${rawAddress} (Landmark: ${landmark})` : rawAddress;
+
         const payload = {
           name: document.getElementById("custName").value,
           email: document.getElementById("custEmail").value,
           phone: document.getElementById("custPhone").value,
           altPhone: document.getElementById("custAltPhone").value,
-          address: document.getElementById("custAddress").value,
+          address: fullAddress,
           pinLocation: document.getElementById("custPin").value,
           itemsSummary: selectedItems.join("\n"),
           total: totalAmount,
