@@ -606,14 +606,15 @@
         
         let summaryText = "";
 
-        // COMBINED NUDGE BANNER FOR ORDERS BELOW 3 ITEMS
+        // HIGH-VISIBILITY NUDGE BANNER (< 3 ITEMS)
         if (totalQty < 3) {
           const needed = 3 - totalQty;
           summaryText += `
-            <div style="background: #FFF3E0; border: 1.5px dashed var(--accent); padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 1.4rem;">✨</span>
-              <div style="font-size: 0.85rem; color: var(--text-main); line-height: 1.35;">
-                <strong>Freshly baked for you!</strong> Why pick just one flavor? Add <strong>${needed} more</strong> treat${needed > 1 ? 's' : ''} to mix & match your favorites and share the goodness!
+            <div style="background: #FFF5EE; border: 2px solid var(--accent); padding: 12px 14px; border-radius: 12px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 12px rgba(216,67,21,0.12);">
+              <span style="font-size: 1.6rem; line-height: 1;">😋</span>
+              <div style="font-size: 0.88rem; color: #2A1A17; line-height: 1.4;">
+                <strong style="color: var(--accent); font-size: 0.95rem;">Why pick just one?</strong><br>
+                Add <span style="background: var(--accent); color: white; padding: 2px 7px; border-radius: 6px; font-weight: 800; font-size: 0.85rem;">${needed} more</span> treat${needed > 1 ? 's' : ''} to mix & match flavors for coffee break!
               </div>
             </div>`;
         }
@@ -641,9 +642,10 @@
                           <span style="color:var(--accent);">₱${totalAmount}</span>
                         </div>
                         
-                        <!-- OPTION 2 DELIVERY FEE NOTE -->
-                        <div style="margin-top: 12px; padding: 8px 10px; background: #FAFAFA; border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); text-align: center; font-weight: 600; border: 1px solid #EFEBE9;">
-                          🛵 <em>Delivery fee applies depending on location.</em>
+                        <!-- HIGH-VISIBILITY DELIVERY FEE NOTE -->
+                        <div style="margin-top: 14px; padding: 10px 12px; background: #FFF8F5; border-left: 4px solid var(--accent); border-top: 1px solid #EFEBE9; border-right: 1px solid #EFEBE9; border-bottom: 1px solid #EFEBE9; border-radius: 8px; font-size: 0.84rem; color: #2A1A17; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                          <span style="font-size: 1.1rem;">🛵</span>
+                          <span><strong style="color: var(--accent);">Note:</strong> Delivery fee applies depending on location.</span>
                         </div>`;
         
         document.getElementById('summaryBox').innerHTML = summaryText;
