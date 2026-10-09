@@ -606,14 +606,17 @@
         
         let summaryText = "";
 
-        // FLAVOR MIX NUDGE BANNER (< 3 ITEMS)
+        // DYNAMIC NUDGE BANNER (< 3 ITEMS)
         if (totalQty < 3) {
           const needed = 3 - totalQty;
+          // Dynamic title based on total items in cart
+          const bannerTitle = totalQty === 1 ? "Why pick just one?" : "Craving more variety?";
+
           summaryText += `
             <div style="background: #FFF5EE; border: 2px solid var(--accent); padding: 12px 14px; border-radius: 12px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 12px rgba(216,67,21,0.12);">
               <span style="font-size: 1.6rem; line-height: 1;">😋</span>
               <div style="font-size: 0.88rem; color: #2A1A17; line-height: 1.4;">
-                <strong style="color: var(--accent); font-size: 0.95rem;">Why pick just one?</strong><br>
+                <strong style="color: var(--accent); font-size: 0.95rem;">${bannerTitle}</strong><br>
                 Add <span style="background: var(--accent); color: white; padding: 2px 7px; border-radius: 6px; font-weight: 800; font-size: 0.85rem;">${needed} more</span> treat${needed > 1 ? 's' : ''} to mix & match flavors for your family or coffee break!
               </div>
             </div>`;
