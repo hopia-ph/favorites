@@ -604,7 +604,22 @@
       function openCheckout() {
         if (totalQty === 0) return;
         
-        let summaryText = "<strong>Order Summary:</strong><br><br>";
+        let summaryText = "";
+
+        // COMBINED NUDGE BANNER FOR ORDERS BELOW 3 ITEMS
+        if (totalQty < 3) {
+          const needed = 3 - totalQty;
+          summaryText += `
+            <div style="background: #FFF3E0; border: 1.5px dashed var(--accent); padding: 10px 14px; border-radius: 10px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 1.4rem;">✨</span>
+              <div style="font-size: 0.85rem; color: var(--text-main); line-height: 1.35;">
+                <strong>Freshly baked for you!</strong> Why pick just one flavor? Add <strong>${needed} more</strong> treat${needed > 1 ? 's' : ''} to mix & match your favorites and share the goodness!
+              </div>
+            </div>`;
+        }
+
+        summaryText += "<strong>Order Summary:</strong><br><br>";
+        
         menuData.forEach((item, idx) => {
           const qtyEl = document.getElementById(`qty-${idx}`);
           const qty = qtyEl ? (parseInt(qtyEl.innerText) || 0) : 0;
@@ -624,6 +639,11 @@
                         <div style="display:flex; justify-content:space-between; font-weight:700; font-size:1.1rem;">
                           <span>Total Amount</span>
                           <span style="color:var(--accent);">₱${totalAmount}</span>
+                        </div>
+                        
+                        <!-- OPTION 2 DELIVERY FEE NOTE -->
+                        <div style="margin-top: 12px; padding: 8px 10px; background: #FAFAFA; border-radius: 8px; font-size: 0.8rem; color: var(--text-muted); text-align: center; font-weight: 600; border: 1px solid #EFEBE9;">
+                          🛵 <em>Delivery fee applies depending on location.</em>
                         </div>`;
         
         document.getElementById('summaryBox').innerHTML = summaryText;
