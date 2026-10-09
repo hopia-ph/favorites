@@ -921,11 +921,11 @@
 
       tbody.innerHTML = '';
 
-      orders.forEach(order => {
+      // FIXED: Added (order, index) here 👇
+      orders.forEach((order, index) => {
         const tr = document.createElement('tr');
         const s = order.status ? order.status.trim() : 'Pending';
         
-        // Disable checkbox if order is Completed or Cancelled
         const isDone = (s === "Completed" || s === "Cancelled");
         if (isDone) {
           selectedOrderIds.delete(order.orderId);
