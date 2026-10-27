@@ -267,12 +267,20 @@
             <option value="month">Month</option>
             <option value="year">Year</option>
             <option value="all">All Time</option>
+            <option value="custom">Custom Range</option>
           </select>
           
           <div id="dateControls" style="display: inline-flex; align-items: center; gap: 6px; background: var(--card-bg); border: 1.5px solid var(--border-color); padding: 4px 8px; border-radius: 10px;">
             <button class="nav-arrow" onclick="shiftDate(-1)">&#8592;</button>
             <span id="dateRangeDisplay" style="font-weight: 800; font-size: 0.88rem; min-width: 130px; text-align: center; color: var(--text-main);">Current Period</span>
             <button class="nav-arrow" onclick="shiftDate(1)">&#8594;</button>
+          </div>
+
+          <!-- NEW: Custom Date Range Pickers -->
+          <div id="customDateControls" style="display: none; align-items: center; gap: 6px; background: var(--card-bg); border: 1.5px solid var(--border-color); padding: 4px 8px; border-radius: 10px;">
+            <input type="date" id="customStartDate" onchange="onCustomDatePicked()" style="padding: 5px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit; font-size: 0.85rem; color: var(--text-main);">
+            <span style="font-weight: 700; color: var(--text-muted); font-size: 0.85rem;">to</span>
+            <input type="date" id="customEndDate" onchange="onCustomDatePicked()" style="padding: 5px 8px; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit; font-size: 0.85rem; color: var(--text-main);">
           </div>
 
           <button class="btn btn-outline" style="width: auto;" onclick="loadAndCalculate()">↻ Refresh</button>
@@ -563,18 +571,53 @@
       processMetrics();
     }
 
+    function onCustomDatePicked() {
+      updateDateRangeDisplay();
+      processMetrics();
+    }
+
     function updateDateRangeDisplay() {
       const now = new Date();
       const displaySpan = document.getElementById('dateRangeDisplay');
       const controlsDiv = document.getElementById('dateControls');
+      const customControls = document.getElementById('customDateControls');
 
       if (currentFilter === 'all') {
         if (controlsDiv) controlsDiv.style.display = 'none';
+        if (customControls) customControls.style.display = 'none';
         currentStartDate = new Date(2000, 0, 1);
         currentEndDate = new Date(2100, 0, 1);
         return;
       }
 
+      if (currentFilter === 'custom') {
+        if (controlsDiv) controlsDiv.style.display = 'none';
+        if (customControls) customControls.style.display = 'inline-flex';
+
+        const startEl = document.getElementById('customStartDate');
+        const endEl = document.getElementById('customEndDate');
+
+        // Default to last 7 days if empty
+        if (!startEl.value || !endEl.value) {
+          const toIso = d => {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+          };
+          const startDefault = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+          startEl.value = toIso(startDefault);
+          endEl.value = toIso(now);
+        }
+
+        const sParts = startEl.value.split('-');
+        const eParts = endEl.value.split('-');
+        currentStartDate = new Date(sParts[0], sParts[1] - 1, sParts[2], 0, 0, 0, 0);
+        currentEndDate = new Date(eParts[0], eParts[1] - 1, eParts[2], 23, 59, 59, 999);
+        return;
+      }
+
+      if (customControls) customControls.style.display = 'none';
       if (controlsDiv) controlsDiv.style.display = 'inline-flex';
 
       if (currentFilter === 'week') {
@@ -712,6 +755,18 @@
                if (currentFilter === 'week') groupKey = orderDate.getDay();
                else if (currentFilter === 'month') groupKey = orderDate.getDate();
                else if (currentFilter === 'year') groupKey = orderDate.getMonth();
+               else if (currentFilter === 'custom') {
+                  const dayStart = new Date(orderDate.getFullYear(), orderDate.getMonth(), orderDate.getDate());
+                  groupKey = dayStart.getTime();
+                  if (!chartGroups[groupKey]) {
+                    chartGroups[groupKey] = { 
+                      label: orderDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), 
+                      revenue: 0, 
+                      profit: 0, 
+                      items: 0 
+                    };
+                  }
+               }
                else {
                   groupKey = orderDate.getFullYear();
                   if (!chartGroups[groupKey]) chartGroups[groupKey] = { label: String(groupKey), revenue: 0, profit: 0, items: 0 };
